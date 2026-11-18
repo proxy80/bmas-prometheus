@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMAS PROJECT PROMETHEUS: COLIBRÌ MoE ARCHITECTURE CONTROLLER</title>
+    <style>
+        :root {
+            --bmas-bg: #0d1117;
+            --bmas-panel: #161b22;
+            --bmas-text: #c9d1d9;
+            --bmas-accent: #58a6ff;
+            --bmas-success: #2ea043;
+            --bmas-warning: #d29922;
+            --bmas-danger: #f85149;
+            --bmas-border: #30363d;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bmas-bg);
+            color: var(--bmas-text);
+            margin: 0;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-header {
+            background-color: var(--bmas-panel);
+            border: 1px solid var(--bmas-border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-header h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .top-header .subtitle {
+            color: var(--bmas-accent);
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .header-badges {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: 1.15fr 1.15fr 1fr;
+            gap: 14px;
+            flex: 1;
+        }
+        @media (max-width: 1200px) {
+            .grid-3col { grid-template-columns: 1fr; }
+        }
+
+        .col-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel {
+            background-color: var(--bmas-panel);
+            border: 1px solid var(--bmas-border);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.35);
+        }
+        .panel h2 {
+            color: #fff;
+            font-size: 1.05rem;
+            margin: 0 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--bmas-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--bmas-accent);
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: var(--bmas-bg);
+            border: 1px solid var(--bmas-border);
+            color: var(--bmas-text);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        button {
+            background-color: var(--bmas-success);
+            color: #fff;
+            border: none;
+            padding: 7px 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: opacity 0.15s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.35; cursor: not-allowed; }
+        button.danger { background-color: var(--bmas-danger); }
+        button.warning { background-color: var(--bmas-warning); color: #000; }
+        button.accent { background-color: var(--bmas-accent); color: #000; }
+        button.small { padding: 4px 9px; font-size: 0.76rem; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background-color: var(--bmas-success);
+            color: #fff;
+        }
+        .status-badge.offline, .status-badge.danger { background-color: var(--bmas-danger); }
+        .status-badge.warning { background-color: var(--bmas-warning); color: #000; }
+        .status-badge.accent { background-color: var(--bmas-accent); color: #000; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        th, td {
+            padding: 7px 6px;
+            text-align: left;
+            border-bottom: 1px solid #21262d;
+        }
+        th { color: #8b949e; font-weight: 600; border-bottom: 1px solid var(--bmas-border); }
+
+        .svg-box {
+            background: #05070a;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .svg-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--bmas-accent);
+            margin-bottom: 6px;
+        }
+
+        .console-log {
+            background: #000;
+            color: #2ea043;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px;
+            height: 240px;
+            overflow-y: auto;
+            border-radius: 4px;
+            border: 1px solid var(--bmas-border);
+            font-size: 0.78rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .console-log.engine-stream {
+            color: #58a6ff;
+            height: 290px;
+        }
+
+        @keyframes streamData { 0% { stroke-dashoffset: 100; } 100% { stroke-dashoffset: 0; } }
+        .data-stream { stroke-dasharray: 10; animation: streamData 1s linear infinite; }
+
+        /* Modals (License Activation & MoE Setup Guide) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .modal-card {
+            background: var(--bmas-panel);
+            border: 1px solid var(--bmas-accent);
+            border-radius: 8px;
+            max-width: 720px;
+            width: 100%;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .code-block {
+            background: #000;
+            color: #58a6ff;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--bmas-border);
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin: 8px 0 14px 0;
+        }
+
+        .nda-footer {
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid var(--bmas-border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: #8b949e;
+        }
+
+        @media print {
+            body { background-color: #fff; color: #000; }
+            .panel, .svg-box, svg { page-break-inside: avoid; break-inside: avoid; }
+            button { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header with Hardware Topology & Commercial License Status -->
+    <div class="top-header">
+        <div>
+            <h1>BMAS PROJECT PROMETHEUS: COLIBRÌ ARCHITECTURE CONTROLLER</h1>
+            <div class="subtitle">Cython-Compiled (.so) High-Performance In-Memory MoE Inference Gateway</div>
+        </div>
+        <div class="header-badges">
+            <span class="status-badge accent" id="hw-badge">PROBING HARDWARE...</span>
+            <span class="status-badge" id="license-badge" onclick="openLicenseModal()" style="cursor:pointer;">CHECKING LICENSE...</span>
+            <button class="accent small" onclick="openGuideModal()">MoE Model Setup Guide</button>
+            <button class="small" style="background:#30363d;" onclick="openLicenseModal()">License Key ($499)</button>
+        </div>
+    </div>
+
+    <!-- 3-Column Main Grid (Matching Video Layout) -->
+    <div class="grid-3col">
+
+        <!-- COLUMN 1: Environment Status + Model Sourcing & Provisioning -->
+        <div class="col-stack">
+            <div class="panel">
+                <h2>Environment Status</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                    <div>
+                        <p style="margin: 6px 0;"><strong>Engine:</strong> <span class="status-badge offline" id="engine-status">PORT 8000 CLEAR</span></p>
+                        <p style="margin: 6px 0;"><strong>Processes:</strong> <span class="status-badge" id="zombie-status">0 DETECTED</span></p>
+                        <div style="margin-top: 12px; display: flex; gap: 8px;">
+                            <button class="warning small" onclick="stopEngine()">Stop Engine</button>
+                            <button class="danger small" onclick="sterilizeEnvironment()">Force Sterilize</button>
+                        </div>
+                    </div>
+                    <!-- SVG /dev/shm Gas Gauge -->
+                    <div style="text-align: center;">
+                        <svg viewBox="0 0 100 55" width="125" height="68">
+                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#30363d" stroke-width="10" stroke-linecap="round"/>
+                            <path id="gauge-fill" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--bmas-success)" stroke-width="10" stroke-dasharray="125.6" stroke-dashoffset="125.6" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"/>
+                            <text id="gauge-text" x="50" y="46" fill="#c9d1d9" font-size="14" font-weight="bold" text-anchor="middle">0%</text>
+                        </svg>
+                        <div id="ram-status" style="font-size: 0.76rem; color: #8b949e;">/dev/shm: 0B / 15.6GB</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; border-top: 1px solid var(--bmas-border); padding-top: 10px;">
+                    <label>Active Target List (lsof / pgrep)</label>
+                    <table>
+                        <thead>
+                            <tr><th>PID</th><th>Command</th><th style="text-align:right;">Action</th></tr>
+                        </thead>
+                        <tbody id="process-list-body">
+                            <tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Model Sourcing & Provisioning</h2>
+                <div style="margin-bottom: 10px;">
+                    <label>Target Directory Path (Local SSD / NVMe / USB / NFS)</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="uri-path" value="/mnt/ssd/models">
+                        <button class="accent" onclick="scanSource()">Scan</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <label>Available Source Models (Auto-Verified Format)</label>
+                    <table>
+                        <thead>
+                            <tr><th>Model</th><th>Size</th><th>Compatibility</th><th style="text-align:right;">Execution</th></tr>
+                        </thead>
+                        <tbody id="source-models-body">
+                            <tr><td colspan="4" style="color:#8b949e;">Click Scan to inspect models.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 16px; border-top: 1px solid var(--bmas-border); padding-top: 10px;">
+                    <label>Resident RAM Disk (/dev/shm/colibri_models)</label>
+                    <table>
+                        <thead>
+                            <tr><th>Model</th><th>Size</th><th style="text-align:right;">Action</th></tr>
+                        </thead>
+                        <tbody id="ram-models-body">
+                            <tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMN 2: Dual SVG I/O Memory Stream & Telemetry -->
+        <div class="panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+                <h2>I/O Memory Stream & Telemetry</h2>
+
+                <!-- Top Diagram: Physical RAM Mapping (Write Transfer) -->
+                <div class="svg-box">
+                    <div class="svg-title">Physical RAM Mapping (Zero-Copy /dev/shm Write Transfer)</div>
+                    <svg width="100%" height="155" viewBox="0 0 520 155" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="25" y="30" width="100" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
+                        <text x="75" y="72" fill="#c9d1d9" font-size="13" font-weight="bold" text-anchor="middle">STORAGE</text>
+                        <text x="75" y="92" fill="#8b949e" font-size="11" text-anchor="middle">Source</text>
+
+                        <rect x="210" y="38" width="100" height="74" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
+                        <text x="260" y="80" fill="#d29922" font-size="15" font-weight="bold" text-anchor="middle">RYZEN</text>
+
+                        <rect x="395" y="25" width="100" height="100" rx="6" fill="#161b22" stroke="#2ea043" stroke-width="3"/>
+                        <text x="445" y="72" fill="#2ea043" font-size="13" font-weight="bold" text-anchor="middle">/dev/shm</text>
+                        <text x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">RAM Disk</text>
+
+                        <line x1="125" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
+                        <line x1="310" y1="75" x2="395" y2="75" stroke="#30363d" stroke-width="5"/>
+
+                        <g id="ram-transfer-flow" style="display:none;">
+                            <line x1="125" y1="75" x2="210" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
+                            <line x1="310" y1="75" x2="395" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
+                        </g>
+                        <text id="live-pid-text" x="260" y="142" fill="#58a6ff" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">IDLE - READY FOR ZERO-COPY STAGE</text>
+                    </svg>
+                </div>
+
+                <!-- Bottom Diagram: Active Inference Stream -->
+                <div class="svg-box">
+                    <div class="svg-title">Active MoE Inference Stream (Bus Telemetry)</div>
+                    <svg width="100%" height="165" viewBox="0 0 520 165" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="25" y="30" width="100" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
+                        <text x="75" y="72" fill="#c9d1d9" font-size="13" font-weight="bold" text-anchor="middle">SHM / NVMe</text>
+                        <text x="75" y="92" fill="#8b949e" font-size="11" text-anchor="middle">MoE Weights</text>
+
+                        <rect x="210" y="38" width="100" height="74" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
+                        <text x="260" y="80" fill="#d29922" font-size="15" font-weight="bold" text-anchor="middle">RYZEN</text>
+
+                        <rect x="395" y="25" width="100" height="100" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+                        <text x="445" y="72" fill="#58a6ff" font-size="12" font-weight="bold" text-anchor="middle">SYSTEM BUS</text>
+                        <text x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">Port 8000</text>
+
+                        <line x1="125" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
+                        <line x1="310" y1="75" x2="395" y2="75" stroke="#30363d" stroke-width="5"/>
+
+                        <g id="inference-stream-flow" style="display:none;">
+                            <line x1="125" y1="75" x2="210" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
+                            <line x1="310" y1="75" x2="395" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
+                        </g>
+                        <text id="disk-metrics-text" x="260" y="148" fill="#2ea043" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">READ: 0.0 MB/s | WRITE: 0.0 MB/s</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div style="background:#05070a; border:1px solid #21262d; border-radius:6px; padding:10px; font-size:0.78rem; color:#8b949e;">
+                <strong style="color:var(--bmas-accent);">BMAS Ring-Buffer Protection:</strong> Active (`nohup` + `stdbuf -oL` + 64KB auto-trim enabled). Terminal and browser console freeze protection verified.
+            </div>
+        </div>
+
+        <!-- COLUMN 3: System & Engine Logs (Ring-Buffered DOM) -->
+        <div class="panel">
+            <h2>System & Engine Logs</h2>
+            <label>Dashboard Activity</label>
+            <div id="console-output" class="console-log"></div>
+
+            <div style="margin-top: 14px;">
+                <label>Colibrì Engine Stream (/tmp/colibri.log - Ring Capped)</label>
+                <div id="engine-log-output" class="console-log engine-stream">Waiting for engine telemetry...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal 1: Commercial License Gate ($499 / $180 Yr) -->
+    <div class="modal-overlay" id="license-modal">
+        <div class="modal-card">
+            <h2 style="margin-top:0; color:#fff;">BMAS Project Prometheus — Commercial Node License</h2>
+            <p style="font-size:0.88rem; color:#c9d1d9;">
+                This utility is protected by a hardware-bound cryptographic signature compiled inside <code>prometheus_core.so</code>.
+                Commercial deployment is licensed at <strong>$499 Perpetual Base / $180 Annual Renewal</strong>.
+            </p>
+            <div style="margin-bottom:12px;">
+                <label>Detected Hardware Node Fingerprint</label>
+                <input type="text" id="modal-node-id" readonly style="color:var(--bmas-warning); font-family:monospace; font-weight:bold;">
+            </div>
+            <div style="margin-bottom:14px;">
+                <label>Enter Prometheus License Key (PROM-...)</label>
+                <input type="text" id="modal-license-key" placeholder="PROM-...">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button style="background:#30363d;" onclick="closeLicenseModal()">Close</button>
+                <button class="accent" onclick="activateLicenseKey()">Verify & Unlock Node</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: MoE Model Setup & Conversion Guide -->
+    <div class="modal-overlay" id="guide-modal">
+        <div class="modal-card">
+            <h2 style="margin-top:0; color:#fff;">MoE Model Installation & Colibrì Quantization Guide</h2>
+            <p style="font-size:0.84rem; color:#c9d1d9;">
+                Why did <code>olmoe_i8</code> (2.2G) and <code>qwen36_i4_gs64</code> (18G) work while <code>Qwen3.8-27B</code> (16G) and <code>Qwen3.6-35B-Archive</code> (64G) failed?
+            </p>
+            <ul style="font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
+                <li><strong>Colibrì Native Models (<code>COLIBRI READY</code>):</strong> Folders like <code>olmoe_i8</code> and <code>qwen36_i4_gs64</code> have been quantized via <code>convert_weights.py</code> into INT8 or INT4 GroupSize-64 shards.</li>
+                <li><strong>Raw HuggingFace Checkpoints (<code>NEEDS QUANT CONVERT</code>):</strong> <code>Qwen3.6-35B-Archive</code> (64G) is raw unquantized BF16 safetensors. Convert it into a 18GB INT4 Colibrì directory first:</li>
+            </ul>
+            <div class="code-block">python3 /mnt/ssd/convert_weights.py \
+  --input /mnt/ssd/models/Qwen3.6-35B-Archive \
+  --output /mnt/ssd/models/qwen36_i4_gs64 \
+  --quant int4_gs64</div>
+            <ul style="font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
+                <li><strong>Expanding <code>/dev/shm</code> for 18GB–22GB Models:</strong> Ubuntu defaults <code>/dev/shm</code> to 50% of RAM (15.6GB on a 32GB node). To stage an 18GB model into <code>/dev/shm</code> without error, expand tmpfs to 24GB:</li>
+            </ul>
+            <div class="code-block">sudo mount -o remount,size=24G /dev/shm</div>
+            <div style="text-align:right;">
+                <button class="accent" onclick="closeGuideModal()">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nda-footer">
+        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL & PROPRIETARY</strong> | Project Prometheus v1.0 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC.
+    </div>
+
+    <script>
+        let isTransferring = false;
+        let lastBytesRead = 0;
+        let lastBytesWritten = 0;
+        let lastMetricTime = Date.now();
+        const MAX_CONSOLE_LINES = 120;
+        const consoleLines = [];
+
+        function logToConsole(message) {
+            const consoleOut = document.getElementById('console-output');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            consoleLines.push(`[${time}] ${message}`);
+            if (consoleLines.length > MAX_CONSOLE_LINES) {
+                consoleLines.shift();
+            }
+            consoleOut.textContent = consoleLines.join('\n');
+            consoleOut.scrollTop = consoleOut.scrollHeight;
+        }
+
+        function openLicenseModal() { document.getElementById('license-modal').style.display = 'flex'; }
+        function closeLicenseModal() { document.getElementById('license-modal').style.display = 'none'; }
+        function openGuideModal() { document.getElementById('guide-modal').style.display = 'flex'; }
+        function closeGuideModal() { document.getElementById('guide-modal').style.display = 'none'; }
+
+        function activateLicenseKey() {
+            const key = document.getElementById('modal-license-key').value.trim();
+            fetch('/api/license/activate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ license_key: key })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    logToConsole(`[LICENSE ERROR] ${data.error}`);
+                    alert(data.error);
+                } else {
+                    logToConsole(`[LICENSE] ${data.status}`);
+                    closeLicenseModal();
+                    updateStatus();
+                }
+            });
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(r => r.json())
+                .then(data => {
+                    // Hardware & License Header Badges
+                    if (data.hardware) {
+                        document.getElementById('hw-badge').innerText =
+                            `${data.hardware.gpu} (${data.hardware.vram_gb}GB VRAM) | ${data.hardware.ram_gb}GB RAM`;
+                    }
+                    if (data.license) {
+                        const licBadge = document.getElementById('license-badge');
+                        document.getElementById('modal-node-id').value = data.license.node_id;
+                        if (data.license.licensed) {
+                            licBadge.className = "status-badge";
+                            licBadge.innerText = `LICENSED: ${data.license.node_id} (${data.license.days_remaining}d)`;
+                        } else {
+                            licBadge.className = "status-badge danger";
+                            licBadge.innerText = `UNLICENSED NODE — CLICK TO ACTIVATE`;
+                        }
+                    }
+
+                    // Engine & Process Badges
+                    const engineBadge = document.getElementById('engine-status');
+                    engineBadge.innerText = data.port_status;
+                    engineBadge.className = data.is_running ? "status-badge" : "status-badge offline";
+
+                    document.getElementById('inference-stream-flow').style.display = data.is_running ? 'block' : 'none';
+
+                    const zombieBadge = document.getElementById('zombie-status');
+                    zombieBadge.innerText = `${data.zombies} DETECTED`;
+                    zombieBadge.className = data.zombies === 0 ? "status-badge" : "status-badge offline";
+
+                    // SVG Gas Gauge
+                    const circumference = 125.6;
+                    const offset = circumference - (circumference * Math.min(100, data.shm_percent) / 100);
+                    const gaugeFill = document.getElementById('gauge-fill');
+                    gaugeFill.style.strokeDashoffset = offset;
+                    document.getElementById('gauge-text').innerText = `${data.shm_percent}%`;
+                    document.getElementById('ram-status').innerText = `/dev/shm: ${data.shm_usage} / ${data.shm_total}`;
+
+                    // Active Target List
+                    const procBody = document.getElementById('process-list-body');
+                    if (!data.processes || data.processes.length === 0) {
+                        procBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr>';
+                    } else {
+                        procBody.innerHTML = data.processes.map(proc => `
+                            <tr>
+                                <td style="color:var(--bmas-danger); font-family:monospace;">${proc.pid}</td>
+                                <td style="font-family:monospace; font-size:0.76rem;">${proc.cmd.substring(0, 48)}</td>
+                                <td style="text-align:right;">
+                                    <button class="danger small" onclick="targetKill('${proc.pid}')">Kill</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+
+                    // Resident RAM Disk Models
+                    const ramBody = document.getElementById('ram-models-body');
+                    if (!data.ram_models || data.ram_models.length === 0) {
+                        ramBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>';
+                    } else {
+                        ramBody.innerHTML = data.ram_models.map(m => `
+                            <tr>
+                                <td style="color:var(--bmas-success); font-weight:bold;">${m.name}</td>
+                                <td>${m.size}</td>
+                                <td style="text-align:right;">
+                                    <button class="accent small" onclick="launchEngine('${m.name}')">Boot</button>
+                                    <a href="http://${window.location.hostname}:8000" target="_blank" style="color:var(--bmas-accent); text-decoration:none; margin-left:6px; font-weight:bold;">↗</a>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                })
+                .catch(() => {});
+        }
+
+        function scanSource() {
+            const path = document.getElementById('uri-path').value.trim();
+            logToConsole(`[SCAN] Probing directory ${path} for MoE architectures...`);
+            fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: path })
+            })
+            .then(r => r.json())
+            .then(data => {
+                const tbody = document.getElementById('source-models-body');
+                if (data.error) {
+                    logToConsole(`[ERROR] ${data.error}`);
+                    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--bmas-danger);">${data.error}</td></tr>`;
+                    return;
+                }
+                logToConsole(`[SCAN] Found ${data.models.length} model directories.`);
+                tbody.innerHTML = data.models.map(m => {
+                    const canRam = m.ready_for_coli && m.fits_shm;
+                    const canDirect = m.ready_for_coli;
+                    return `
+                        <tr title="${m.hint}">
+                            <td style="color:var(--bmas-accent); font-weight:600;">${m.name}</td>
+                            <td>${m.size}</td>
+                            <td><span class="status-badge ${m.badge_color}">${m.badge}</span></td>
+                            <td style="text-align:right; white-space:nowrap;">
+                                <button class="small" ${canRam ? '' : 'disabled'} onclick="startTransfer('${m.path}')" title="${m.hint}">Load to RAM</button>
+                                <button class="warning small" ${canDirect ? '' : 'disabled'} onclick="launchDirect('${m.path}')" title="${m.hint}">Direct Run</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            });
+        }
+
+        function startTransfer(fullPath) {
+            logToConsole(`[COMMAND] Staging ${fullPath} -> /dev/shm...`);
+            fetch('/api/load', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source_path: fullPath })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) logToConsole(`[ERROR] ${data.error}`);
+                else logToConsole(`[SYSTEM] ${data.status}`);
+            });
+        }
+
+        function launchEngine(modelName) {
+            logToConsole(`[COMMAND] Booting RAM-resident model: ${modelName}`);
+            fetch('/api/launch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model_name: modelName })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) logToConsole(`[ERROR] ${data.error}`);
+                else {
+                    logToConsole(`[SYSTEM] ${data.status}`);
+                    updateStatus();
+                }
+            });
+        }
+
+        function launchDirect(fullPath) {
+            logToConsole(`[COMMAND] Direct NVMe mmap stream launch: ${fullPath}`);
+            fetch('/api/launch_direct', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_path: fullPath })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) logToConsole(`[ERROR] ${data.error}`);
+                else {
+                    logToConsole(`[SYSTEM] ${data.status}`);
+                    updateStatus();
+                }
+            });
+        }
+
+        function targetKill(pid) {
+            logToConsole(`[COMMAND] Deploying SIGKILL to PID ${pid}...`);
+            fetch('/api/kill', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pid: pid })
+            })
+            .then(r => r.json())
+            .then(data => {
+                logToConsole(`[SYSTEM] ${data.status || data.error}`);
+                updateStatus();
+            });
+        }
+
+        function stopEngine() {
+            logToConsole(`[COMMAND] Stopping active inference engine...`);
+            fetch('/api/stop', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    logToConsole(`[SYSTEM] ${data.status || data.error}`);
+                    updateStatus();
+                });
+        }
+
+        function sterilizeEnvironment() {
+            logToConsole(`[COMMAND] Executing Force Sterilization (lsof + /dev/shm purge)...`);
+            fetch('/api/sterilize', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    logToConsole(`[SYSTEM] ${data.status || data.error}`);
+                    updateStatus();
+                });
+        }
+
+        function pollTelemetryAndLogs() {
+            fetch('/api/io_stream')
+                .then(r => r.json())
+                .then(data => {
+                    const flow = document.getElementById('ram-transfer-flow');
+                    const pidTxt = document.getElementById('live-pid-text');
+                    if (data.active) {
+                        if (!isTransferring) logToConsole(`[I/O] Active /dev/shm transfer locked (PID ${data.pid})`);
+                        isTransferring = true;
+                        flow.style.display = 'block';
+                        pidTxt.innerText = `[LSOF DMA STREAM] PID: ${data.pid} | STAGED: ${data.size}`;
+                    } else {
+                        if (isTransferring) {
+                            isTransferring = false;
+                            flow.style.display = 'none';
+                            pidTxt.innerText = `TRANSFER COMPLETE — MODEL RESIDENT IN /dev/shm`;
+                            logToConsole(`[I/O] Zero-copy /dev/shm transfer complete.`);
+                            updateStatus();
+                        }
+                    }
+                }).catch(() => {});
+
+            fetch('/api/io_metrics')
+                .then(r => r.json())
+                .then(data => {
+                    const now = Date.now();
+                    const dt = Math.max(0.5, (now - lastMetricTime) / 1000.0);
+                    if (lastBytesRead > 0) {
+                        const rMbps = ((data.bytes_read - lastBytesRead) / (1024 * 1024)) / dt;
+                        const wMbps = ((data.bytes_written - lastBytesWritten) / (1024 * 1024)) / dt;
+                        document.getElementById('disk-metrics-text').innerText =
+                            `READ: ${Math.max(0, rMbps).toFixed(1)} MB/s | WRITE: ${Math.max(0, wMbps).toFixed(1)} MB/s`;
+                    }
+                    lastBytesRead = data.bytes_read;
+                    lastBytesWritten = data.bytes_written;
+                    lastMetricTime = now;
+                }).catch(() => {});
+
+            fetch('/api/logs')
+                .then(r => r.json())
+                .then(data => {
+                    const el = document.getElementById('engine-log-output');
+                    if (el.textContent !== data.logs) {
+                        el.textContent = data.logs;
+                        el.scrollTop = el.scrollHeight;
+                    }
+                }).catch(() => {});
+        }
+
+        logToConsole("[BMAS-PROMETHEUS] Dashboard initialized. Ring-buffer protection online.");
+        updateStatus();
+        scanSource();
+        setInterval(updateStatus, 3000);
+        setInterval(pollTelemetryAndLogs, 2000);
+    </script>
+</body>
+</html>

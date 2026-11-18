@@ -1,0 +1,15 @@
+src_cython/
+*.pyx
+*.pxd
+*.c
+*.h
+build/
+bmas_keygen.py
+setup.py
+*.lic
+*.lic.bak
+__pycache__/
+*.pyc
+!prometheus_pkg/*.so
+*.tar.gz
+build_release_tarball.sh
