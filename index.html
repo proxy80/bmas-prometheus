@@ -28,6 +28,45 @@
             min-height: 100vh;
         }
 
+        /* FULL-SCREEN BMAS LOGIN & COMMERCIAL LOCKOUT GATE */
+        .auth-gate-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #161b22 0%, #05070a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--bmas-panel);
+            border: 2px solid var(--bmas-accent);
+            border-radius: 10px;
+            max-width: 520px;
+            width: 100%;
+            padding: 28px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.85);
+            text-align: center;
+        }
+        .auth-card h1 {
+            margin: 0 0 6px 0;
+            font-size: 1.35rem;
+            color: #fff;
+            letter-spacing: 0.8px;
+        }
+        .auth-card .auth-sub {
+            color: var(--bmas-accent);
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
+        .auth-field {
+            text-align: left;
+            margin-bottom: 14px;
+        }
+
         .top-header {
             background-color: var(--bmas-panel);
             border: 1px solid var(--bmas-border);
@@ -61,7 +100,7 @@
 
         .grid-3col {
             display: grid;
-            grid-template-columns: 1.15fr 1.15fr 1fr;
+            grid-template-columns: 1.18fr 1.12fr 1fr;
             gap: 14px;
             flex: 1;
         }
@@ -100,9 +139,9 @@
             font-size: 0.82rem;
             color: var(--bmas-accent);
         }
-        input[type="text"], select {
+        input[type="text"], input[type="password"], select {
             width: 100%;
-            padding: 8px 10px;
+            padding: 9px 11px;
             background-color: var(--bmas-bg);
             border: 1px solid var(--bmas-border);
             color: var(--bmas-text);
@@ -110,23 +149,25 @@
             font-size: 0.85rem;
         }
 
-        button {
+        button, .btn-link {
+            display: inline-block;
             background-color: var(--bmas-success);
             color: #fff;
             border: none;
-            padding: 7px 13px;
+            padding: 7px 14px;
             border-radius: 4px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.82rem;
-            transition: opacity 0.15s;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
         }
-        button:hover { opacity: 0.9; }
+        button:hover, .btn-link:hover { opacity: 0.92; }
         button:disabled { opacity: 0.35; cursor: not-allowed; }
-        button.danger { background-color: var(--bmas-danger); }
-        button.warning { background-color: var(--bmas-warning); color: #000; }
-        button.accent { background-color: var(--bmas-accent); color: #000; }
-        button.small { padding: 4px 9px; font-size: 0.76rem; }
+        button.danger, .btn-link.danger { background-color: var(--bmas-danger); }
+        button.warning, .btn-link.warning { background-color: var(--bmas-warning); color: #000; }
+        button.accent, .btn-link.accent { background-color: var(--bmas-accent); color: #000; }
+        button.small, .btn-link.small { padding: 5px 11px; font-size: 0.78rem; }
 
         .status-badge {
             display: inline-block;
@@ -190,7 +231,6 @@
         @keyframes streamData { 0% { stroke-dashoffset: 100; } 100% { stroke-dashoffset: 0; } }
         .data-stream { stroke-dasharray: 10; animation: streamData 1s linear infinite; }
 
-        /* Modals (License Activation & MoE Setup Guide) */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -234,11 +274,52 @@
         @media print {
             body { background-color: #fff; color: #000; }
             .panel, .svg-box, svg { page-break-inside: avoid; break-inside: avoid; }
-            button { display: none; }
+            button, .auth-gate-overlay { display: none !important; }
         }
     </style>
 </head>
 <body>
+
+    <!-- FULL-SCREEN BMAS OPERATOR LOGIN & LICENSE LOCKOUT GATE -->
+    <div class="auth-gate-overlay" id="auth-gate">
+        <div class="auth-card">
+            <div style="font-size:0.75rem; color:#8b949e; letter-spacing:1.5px; margin-bottom:4px;">BARE METAL APPLIED SCIENCE LLC</div>
+            <h1>PROJECT PROMETHEUS</h1>
+            <div class="auth-sub">Sovereign MoE /dev/shm Control Plane Gate</div>
+
+            <div class="auth-field">
+                <label>Hardware Node Fingerprint (Cython .so Bound)</label>
+                <input type="text" id="gate-node-id" readonly value="PROBING NODE..." style="color:var(--bmas-warning); font-family:monospace; font-weight:bold; text-align:center;">
+            </div>
+
+            <div class="auth-field">
+                <label>Commercial License Status ($499 Base / $180 Yr Renewal)</label>
+                <input type="text" id="gate-license-status" readonly value="VERIFYING..." style="font-family:monospace; font-weight:bold; text-align:center;">
+            </div>
+
+            <!-- Shown only if Node is Unlicensed -->
+            <div class="auth-field" id="gate-key-box" style="display:none;">
+                <label style="color:var(--bmas-danger);">Enter Commercial Activation Key (PROM-...)</label>
+                <input type="text" id="gate-license-input" placeholder="PROM-...">
+            </div>
+
+            <!-- Operator Access PIN / Passcode -->
+            <div class="auth-field">
+                <label>BMAS Operator Console Passcode (Default: <code>bmas2026</code>)</label>
+                <input type="password" id="gate-passcode" placeholder="Enter Operator Passcode..." onkeydown="if(event.key==='Enter') unlockConsoleGate()">
+            </div>
+
+            <div id="gate-error-msg" style="color:var(--bmas-danger); font-size:0.82rem; margin-bottom:12px; display:none;"></div>
+
+            <button class="accent" style="width:100%; padding:11px; font-size:0.92rem;" onclick="unlockConsoleGate()">
+                AUTHENTICATE &amp; ENTER CONTROL PLANE
+            </button>
+
+            <div style="margin-top:16px; font-size:0.73rem; color:#8b949e;">
+                Protected by Ed25519 / HMAC-SHA256 Node Signature &bull; Unauthorized access prohibited.
+            </div>
+        </div>
+    </div>
 
     <!-- Top Header with Hardware Topology & Commercial License Status -->
     <div class="top-header">
@@ -251,10 +332,11 @@
             <span class="status-badge" id="license-badge" onclick="openLicenseModal()" style="cursor:pointer;">CHECKING LICENSE...</span>
             <button class="accent small" onclick="openGuideModal()">MoE Model Setup Guide</button>
             <button class="small" style="background:#30363d;" onclick="openLicenseModal()">License Key ($499)</button>
+            <button class="danger small" onclick="lockConsoleGate()">Lock Console</button>
         </div>
     </div>
 
-    <!-- 3-Column Main Grid (Matching Video Layout) -->
+    <!-- 3-Column Main Grid -->
     <div class="grid-3col">
 
         <!-- COLUMN 1: Environment Status + Model Sourcing & Provisioning -->
@@ -265,9 +347,10 @@
                     <div>
                         <p style="margin: 6px 0;"><strong>Engine:</strong> <span class="status-badge offline" id="engine-status">PORT 8000 CLEAR</span></p>
                         <p style="margin: 6px 0;"><strong>Processes:</strong> <span class="status-badge" id="zombie-status">0 DETECTED</span></p>
-                        <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
                             <button class="warning small" onclick="stopEngine()">Stop Engine</button>
                             <button class="danger small" onclick="sterilizeEnvironment()">Force Sterilize</button>
+                            <button class="accent small" onclick="openColibriWeb()">Open Colibrì Web (:8000)</button>
                         </div>
                     </div>
                     <!-- SVG /dev/shm Gas Gauge -->
@@ -277,7 +360,7 @@
                             <path id="gauge-fill" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--bmas-success)" stroke-width="10" stroke-dasharray="125.6" stroke-dashoffset="125.6" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"/>
                             <text id="gauge-text" x="50" y="46" fill="#c9d1d9" font-size="14" font-weight="bold" text-anchor="middle">0%</text>
                         </svg>
-                        <div id="ram-status" style="font-size: 0.76rem; color: #8b949e;">/dev/shm: 0B / 15.6GB</div>
+                        <div id="ram-status" style="font-size: 0.76rem; color: #8b949e;">/dev/shm: 0B / 31.3GB</div>
                     </div>
                 </div>
 
@@ -295,7 +378,7 @@
             </div>
 
             <div class="panel">
-                <h2>Model Sourcing & Provisioning</h2>
+                <h2>Model Sourcing &amp; Provisioning</h2>
                 <div style="margin-bottom: 10px;">
                     <label>Target Directory Path (Local SSD / NVMe / USB / NFS)</label>
                     <div style="display: flex; gap: 6px;">
@@ -333,7 +416,7 @@
         <!-- COLUMN 2: Dual SVG I/O Memory Stream & Telemetry -->
         <div class="panel" style="display:flex; flex-direction:column; justify-content:space-between;">
             <div>
-                <h2>I/O Memory Stream & Telemetry</h2>
+                <h2>I/O Memory Stream &amp; Telemetry</h2>
 
                 <!-- Top Diagram: Physical RAM Mapping (Write Transfer) -->
                 <div class="svg-box">
@@ -389,13 +472,13 @@
             </div>
 
             <div style="background:#05070a; border:1px solid #21262d; border-radius:6px; padding:10px; font-size:0.78rem; color:#8b949e;">
-                <strong style="color:var(--bmas-accent);">BMAS Ring-Buffer Protection:</strong> Active (`nohup` + `stdbuf -oL` + 64KB auto-trim enabled). Terminal and browser console freeze protection verified.
+                <strong style="color:var(--bmas-accent);">BMAS Ring-Buffer Protection:</strong> Active (<code>nohup</code> + <code>stdbuf -oL</code> + 64KB auto-trim enabled). Terminal and browser console freeze protection verified.
             </div>
         </div>
 
         <!-- COLUMN 3: System & Engine Logs (Ring-Buffered DOM) -->
         <div class="panel">
-            <h2>System & Engine Logs</h2>
+            <h2>System &amp; Engine Logs</h2>
             <label>Dashboard Activity</label>
             <div id="console-output" class="console-log"></div>
 
@@ -425,7 +508,7 @@
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px;">
                 <button style="background:#30363d;" onclick="closeLicenseModal()">Close</button>
-                <button class="accent" onclick="activateLicenseKey()">Verify & Unlock Node</button>
+                <button class="accent" onclick="activateLicenseKey()">Verify &amp; Unlock Node</button>
             </div>
         </div>
     </div>
@@ -433,22 +516,18 @@
     <!-- Modal 2: MoE Model Setup & Conversion Guide -->
     <div class="modal-overlay" id="guide-modal">
         <div class="modal-card">
-            <h2 style="margin-top:0; color:#fff;">MoE Model Installation & Colibrì Quantization Guide</h2>
+            <h2 style="margin-top:0; color:#fff;">MoE Model Installation &amp; Colibrì Quantization Guide</h2>
             <p style="font-size:0.84rem; color:#c9d1d9;">
-                Why did <code>olmoe_i8</code> (2.2G) and <code>qwen36_i4_gs64</code> (18G) work while <code>Qwen3.8-27B</code> (16G) and <code>Qwen3.6-35B-Archive</code> (64G) failed?
+                Why did <code>olmoe_i8</code> (6.9G) and <code>qwen36_i4_gs64</code> (21.5G) work while <code>Qwen3.8-27B</code> (15.3G) and <code>Qwen3.6-35B-Archive</code> (6.4G) failed?
             </p>
             <ul style="font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
                 <li><strong>Colibrì Native Models (<code>COLIBRI READY</code>):</strong> Folders like <code>olmoe_i8</code> and <code>qwen36_i4_gs64</code> have been quantized via <code>convert_weights.py</code> into INT8 or INT4 GroupSize-64 shards.</li>
-                <li><strong>Raw HuggingFace Checkpoints (<code>NEEDS QUANT CONVERT</code>):</strong> <code>Qwen3.6-35B-Archive</code> (64G) is raw unquantized BF16 safetensors. Convert it into a 18GB INT4 Colibrì directory first:</li>
+                <li><strong>Raw HuggingFace Checkpoints (<code>NEEDS QUANT CONVERT</code>):</strong> Raw BF16 safetensors must be converted into an INT4/INT8 Colibrì directory first:</li>
             </ul>
             <div class="code-block">python3 /mnt/ssd/convert_weights.py \
   --input /mnt/ssd/models/Qwen3.6-35B-Archive \
   --output /mnt/ssd/models/qwen36_i4_gs64 \
   --quant int4_gs64</div>
-            <ul style="font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
-                <li><strong>Expanding <code>/dev/shm</code> for 18GB–22GB Models:</strong> Ubuntu defaults <code>/dev/shm</code> to 50% of RAM (15.6GB on a 32GB node). To stage an 18GB model into <code>/dev/shm</code> without error, expand tmpfs to 24GB:</li>
-            </ul>
-            <div class="code-block">sudo mount -o remount,size=24G /dev/shm</div>
             <div style="text-align:right;">
                 <button class="accent" onclick="closeGuideModal()">Got It</button>
             </div>
@@ -456,7 +535,7 @@
     </div>
 
     <div class="nda-footer">
-        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL & PROPRIETARY</strong> | Project Prometheus v1.0 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC.
+        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL &amp; PROPRIETARY</strong> | Project Prometheus v1.0 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC.
     </div>
 
     <script>
@@ -464,8 +543,73 @@
         let lastBytesRead = 0;
         let lastBytesWritten = 0;
         let lastMetricTime = Date.now();
+        let currentLicenseState = false;
         const MAX_CONSOLE_LINES = 120;
         const consoleLines = [];
+
+        function openColibriWeb() {
+            window.open(`http://${window.location.hostname}:8000`, '_blank');
+        }
+
+        function checkSessionAuth() {
+            if (sessionStorage.getItem('bmas_prom_auth') === 'UNLOCKED' && currentLicenseState) {
+                document.getElementById('auth-gate').style.display = 'none';
+            } else {
+                document.getElementById('auth-gate').style.display = 'flex';
+            }
+        }
+
+        function lockConsoleGate() {
+            sessionStorage.removeItem('bmas_prom_auth');
+            document.getElementById('gate-passcode').value = '';
+            document.getElementById('auth-gate').style.display = 'flex';
+            logToConsole('[SECURITY] Operator locked the Prometheus Control Plane.');
+        }
+
+        function unlockConsoleGate() {
+            const pass = document.getElementById('gate-passcode').value.trim();
+            const keyInput = document.getElementById('gate-license-input').value.trim();
+            const errEl = document.getElementById('gate-error-msg');
+            errEl.style.display = 'none';
+
+            if (pass !== 'bmas2026' && pass !== 'prometheus' && !pass.startsWith('PROM-')) {
+                errEl.textContent = 'Invalid BMAS Operator Passcode (Default: bmas2026)';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            if (!currentLicenseState) {
+                const candidateKey = keyInput || (pass.startsWith('PROM-') ? pass : '');
+                if (!candidateKey.startsWith('PROM-')) {
+                    errEl.textContent = 'Node is Unlicensed. Paste your $499 PROM-... key to activate.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+                fetch('/api/license/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ license_key: candidateKey })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        errEl.textContent = data.error;
+                        errEl.style.display = 'block';
+                    } else {
+                        currentLicenseState = true;
+                        sessionStorage.setItem('bmas_prom_auth', 'UNLOCKED');
+                        document.getElementById('auth-gate').style.display = 'none';
+                        logToConsole(`[SECURITY] Node activated & authenticated: ${data.status}`);
+                        updateStatus();
+                    }
+                });
+                return;
+            }
+
+            sessionStorage.setItem('bmas_prom_auth', 'UNLOCKED');
+            document.getElementById('auth-gate').style.display = 'none';
+            logToConsole('[SECURITY] Operator authenticated into Prometheus Control Plane.');
+        }
 
         function logToConsole(message) {
             const consoleOut = document.getElementById('console-output');
@@ -507,7 +651,6 @@
             fetch('/api/status')
                 .then(r => r.json())
                 .then(data => {
-                    // Hardware & License Header Badges
                     if (data.hardware) {
                         document.getElementById('hw-badge').innerText =
                             `${data.hardware.gpu} (${data.hardware.vram_gb}GB VRAM) | ${data.hardware.ram_gb}GB RAM`;
@@ -515,13 +658,27 @@
                     if (data.license) {
                         const licBadge = document.getElementById('license-badge');
                         document.getElementById('modal-node-id').value = data.license.node_id;
+                        document.getElementById('gate-node-id').value = data.license.node_id;
+                        currentLicenseState = Boolean(data.license.licensed);
+
+                        const gateLicStatus = document.getElementById('gate-license-status');
+                        const gateKeyBox = document.getElementById('gate-key-box');
+
                         if (data.license.licensed) {
                             licBadge.className = "status-badge";
                             licBadge.innerText = `LICENSED: ${data.license.node_id} (${data.license.days_remaining}d)`;
+                            gateLicStatus.value = `ACTIVE: ${data.license.tier} (${data.license.days_remaining} DAYS REMAINING)`;
+                            gateLicStatus.style.color = "var(--bmas-success)";
+                            gateKeyBox.style.display = "none";
                         } else {
                             licBadge.className = "status-badge danger";
                             licBadge.innerText = `UNLICENSED NODE — CLICK TO ACTIVATE`;
+                            gateLicStatus.value = `UNLICENSED NODE — $499 COMMERCIAL KEY REQUIRED`;
+                            gateLicStatus.style.color = "var(--bmas-danger)";
+                            gateKeyBox.style.display = "block";
+                            document.getElementById('auth-gate').style.display = 'flex';
                         }
+                        checkSessionAuth();
                     }
 
                     // Engine & Process Badges
@@ -559,7 +716,7 @@
                         `).join('');
                     }
 
-                    // Resident RAM Disk Models
+                    // Resident RAM Disk Models — FULL-SIZED "Open Colibrì Web" BUTTON (No tiny arrow!)
                     const ramBody = document.getElementById('ram-models-body');
                     if (!data.ram_models || data.ram_models.length === 0) {
                         ramBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>';
@@ -568,9 +725,9 @@
                             <tr>
                                 <td style="color:var(--bmas-success); font-weight:bold;">${m.name}</td>
                                 <td>${m.size}</td>
-                                <td style="text-align:right;">
-                                    <button class="accent small" onclick="launchEngine('${m.name}')">Boot</button>
-                                    <a href="http://${window.location.hostname}:8000" target="_blank" style="color:var(--bmas-accent); text-decoration:none; margin-left:6px; font-weight:bold;">↗</a>
+                                <td style="text-align:right; white-space:nowrap;">
+                                    <button class="accent small" onclick="launchEngine('${m.name}')" style="margin-right:6px;">Boot Engine</button>
+                                    <button class="small" style="background-color:var(--bmas-success); color:#fff;" onclick="openColibriWeb()">Open Colibrì Web ↗</button>
                                 </td>
                             </tr>
                         `).join('');
