@@ -81,21 +81,33 @@
         }
         .top-header h1 {
             margin: 0;
-            font-size: 1.25rem;
+            font-size: 1.22rem;
             color: #fff;
             letter-spacing: 0.5px;
         }
         .top-header .subtitle {
             color: var(--bmas-accent);
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
             margin-top: 3px;
         }
         .header-badges {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+
+        /* Print-Only Executive STAR / Audit Summary Banner */
+        .print-audit-summary {
+            display: none;
+            border: 2px solid #000;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #000;
+            background: #f8f9fa;
         }
 
         .grid-3col {
@@ -123,7 +135,7 @@
         }
         .panel h2 {
             color: #fff;
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             margin: 0 0 12px 0;
             padding-bottom: 8px;
             border-bottom: 1px solid var(--bmas-border);
@@ -136,17 +148,17 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--bmas-accent);
         }
-        input[type="text"], input[type="password"], select {
+        input[type="text"], input[type="number"], input[type="password"], select {
             width: 100%;
-            padding: 9px 11px;
+            padding: 8px 10px;
             background-color: var(--bmas-bg);
             border: 1px solid var(--bmas-border);
             color: var(--bmas-text);
             border-radius: 4px;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
         }
 
         button, .btn-link {
@@ -154,26 +166,26 @@
             background-color: var(--bmas-success);
             color: #fff;
             border: none;
-            padding: 7px 14px;
+            padding: 7px 13px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             text-decoration: none;
-            transition: opacity 0.15s, transform 0.1s;
+            transition: opacity 0.15s;
         }
         button:hover, .btn-link:hover { opacity: 0.92; }
         button:disabled { opacity: 0.35; cursor: not-allowed; }
         button.danger, .btn-link.danger { background-color: var(--bmas-danger); }
         button.warning, .btn-link.warning { background-color: var(--bmas-warning); color: #000; }
         button.accent, .btn-link.accent { background-color: var(--bmas-accent); color: #000; }
-        button.small, .btn-link.small { padding: 5px 11px; font-size: 0.78rem; }
+        button.small, .btn-link.small { padding: 5px 10px; font-size: 0.76rem; }
 
         .status-badge {
             display: inline-block;
             padding: 3px 9px;
             border-radius: 12px;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 700;
             background-color: var(--bmas-success);
             color: #fff;
@@ -185,7 +197,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
         }
         th, td {
             padding: 7px 6px;
@@ -218,7 +230,7 @@
             overflow-y: auto;
             border-radius: 4px;
             border: 1px solid var(--bmas-border);
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             line-height: 1.4;
             white-space: pre-wrap;
             word-break: break-all;
@@ -245,7 +257,7 @@
             background: var(--bmas-panel);
             border: 1px solid var(--bmas-accent);
             border-radius: 8px;
-            max-width: 720px;
+            max-width: 740px;
             width: 100%;
             padding: 22px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
@@ -257,7 +269,7 @@
             padding: 10px;
             border-radius: 4px;
             border: 1px solid var(--bmas-border);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             overflow-x: auto;
             margin: 8px 0 14px 0;
         }
@@ -271,10 +283,18 @@
             color: #8b949e;
         }
 
+        /* BMAS HTML REPORT LANDSCAPE & SVG PDF PRINT PROTECTION BLOCKS */
+        @page { size: landscape; margin: 10mm; }
         @media print {
-            body { background-color: #fff; color: #000; }
-            .panel, .svg-box, svg { page-break-inside: avoid; break-inside: avoid; }
-            button, .auth-gate-overlay { display: none !important; }
+            body { background-color: #fff !important; color: #000 !important; padding: 0; }
+            .top-header { background: #f0f4f8 !important; color: #000 !important; border: 2px solid #000 !important; }
+            .top-header h1 { color: #000 !important; }
+            .print-audit-summary { display: block !important; page-break-inside: avoid; break-inside: avoid; }
+            .panel { background: #fff !important; color: #000 !important; border: 1px solid #888 !important; box-shadow: none !important; page-break-inside: avoid; break-inside: avoid; }
+            .panel h2, td, th, p, div { color: #000 !important; }
+            .svg-box, svg { background: #111 !important; page-break-inside: avoid !important; break-inside: avoid !important; max-width: 100% !important; }
+            button, .auth-gate-overlay, .modal-overlay { display: none !important; }
+            .nda-footer { color: #000 !important; border-top: 2px solid #000 !important; font-weight: bold; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -284,7 +304,7 @@
     <div class="auth-gate-overlay" id="auth-gate">
         <div class="auth-card">
             <div style="font-size:0.75rem; color:#8b949e; letter-spacing:1.5px; margin-bottom:4px;">BARE METAL APPLIED SCIENCE LLC</div>
-            <h1>PROJECT PROMETHEUS</h1>
+            <h1>PROJECT PROMETHEUS v1.1</h1>
             <div class="auth-sub">Sovereign MoE /dev/shm Control Plane Gate</div>
 
             <div class="auth-field">
@@ -297,13 +317,11 @@
                 <input type="text" id="gate-license-status" readonly value="VERIFYING..." style="font-family:monospace; font-weight:bold; text-align:center;">
             </div>
 
-            <!-- Shown only if Node is Unlicensed -->
             <div class="auth-field" id="gate-key-box" style="display:none;">
                 <label style="color:var(--bmas-danger);">Enter Commercial Activation Key (PROM-...)</label>
                 <input type="text" id="gate-license-input" placeholder="PROM-...">
             </div>
 
-            <!-- Operator Access PIN / Passcode -->
             <div class="auth-field">
                 <label>BMAS Operator Console Passcode (Default: <code>bmas2026</code>)</label>
                 <input type="password" id="gate-passcode" placeholder="Enter Operator Passcode..." onkeydown="if(event.key==='Enter') unlockConsoleGate()">
@@ -321,28 +339,41 @@
         </div>
     </div>
 
-    <!-- Top Header with Hardware Topology & Commercial License Status -->
+    <!-- Top Header with Hardware Topology, License Status, & 1-Click BMAS PDF Audit Export -->
     <div class="top-header">
         <div>
-            <h1>BMAS PROJECT PROMETHEUS: COLIBRÌ ARCHITECTURE CONTROLLER</h1>
-            <div class="subtitle">Cython-Compiled (.so) High-Performance In-Memory MoE Inference Gateway</div>
+            <h1>BMAS HTML REPORT: PROJECT PROMETHEUS MoE CONTROLLER</h1>
+            <div class="subtitle">Cython-Compiled (.so) Zero-Copy /dev/shm &amp; Multi-Protocol (NVMe / NFS / S3 / API) Inference Gateway</div>
         </div>
         <div class="header-badges">
             <span class="status-badge accent" id="hw-badge">PROBING HARDWARE...</span>
             <span class="status-badge" id="license-badge" onclick="openLicenseModal()" style="cursor:pointer;">CHECKING LICENSE...</span>
-            <button class="accent small" onclick="openGuideModal()">MoE Model Setup Guide</button>
+            <button class="small" style="background:var(--bmas-success); color:#fff;" onclick="exportBmasPdfReport()">Export BMAS PDF Report</button>
+            <button class="accent small" onclick="openGuideModal()">MoE &amp; Port/S3 Guide</button>
             <button class="small" style="background:#30363d;" onclick="openLicenseModal()">License Key ($499)</button>
             <button class="danger small" onclick="lockConsoleGate()">Lock Console</button>
         </div>
     </div>
 
+    <!-- Print-Only Executive STAR & Physical-Layer Audit Header (Appears automatically on PDF Export) -->
+    <div class="print-audit-summary" id="print-audit-box">
+        <strong>BMAS EXECUTIVE INFRASTRUCTURE &amp; MEMORY AUDIT REPORT (STAR VERIFICATION)</strong><br>
+        <span id="print-audit-meta">Node ID: --- | Hardware: --- | /dev/shm Capacity: --- | Timestamp: ---</span>
+    </div>
+
     <!-- 3-Column Main Grid -->
     <div class="grid-3col">
 
-        <!-- COLUMN 1: Environment Status + Model Sourcing & Provisioning -->
+        <!-- COLUMN 1: Environment Status + Multi-Protocol Model Sourcing -->
         <div class="col-stack">
             <div class="panel">
-                <h2>Environment Status</h2>
+                <h2>
+                    <span>Environment Status</span>
+                    <span style="font-size:0.76rem; font-weight:normal; color:#8b949e;">
+                        Engine Port:
+                        <input type="number" id="engine-port-input" value="8000" style="width:70px; padding:2px 6px; display:inline-block; font-family:monospace;" onchange="updateEnginePort()">
+                    </span>
+                </h2>
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
                     <div>
                         <p style="margin: 6px 0;"><strong>Engine:</strong> <span class="status-badge offline" id="engine-status">PORT 8000 CLEAR</span></p>
@@ -350,7 +381,7 @@
                         <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
                             <button class="warning small" onclick="stopEngine()">Stop Engine</button>
                             <button class="danger small" onclick="sterilizeEnvironment()">Force Sterilize</button>
-                            <button class="accent small" onclick="openColibriWeb()">Open Colibrì Web (:8000)</button>
+                            <button class="accent small" id="top-open-web-btn" onclick="openColibriWeb()">Open Colibrì Web (:8000)</button>
                         </div>
                     </div>
                     <!-- SVG /dev/shm Gas Gauge -->
@@ -378,13 +409,30 @@
             </div>
 
             <div class="panel">
-                <h2>Model Sourcing &amp; Provisioning</h2>
-                <div style="margin-bottom: 10px;">
-                    <label>Target Directory Path (Local SSD / NVMe / USB / NFS)</label>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="uri-path" value="/mnt/ssd/models">
-                        <button class="accent" onclick="scanSource()">Scan</button>
+                <h2>Model Sourcing &amp; Multi-Protocol Provisioning</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1.6fr; gap:8px; margin-bottom:10px;">
+                    <div>
+                        <label>Ingest Protocol</label>
+                        <select id="source-protocol" onchange="onProtocolChange()">
+                            <option value="local">Local NVMe / SSD / USB</option>
+                            <option value="nfs">NFS / Lustre / BeeGFS Mount</option>
+                            <option value="s3">AWS S3 / MinIO (s3://)</option>
+                            <option value="hf">HTTP / HuggingFace API</option>
+                        </select>
                     </div>
+                    <div>
+                        <label id="uri-label">Target Directory or Stream URI</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="uri-path" value="/mnt/ssd/models">
+                            <button class="accent" id="scan-or-pull-btn" onclick="handleSourceAction()">Scan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional S3 Endpoint Bar (Only shown when S3 is selected) -->
+                <div id="s3-extra-bar" style="display:none; margin-bottom:10px;">
+                    <label>Optional Sovereign MinIO / Custom S3 Endpoint URL (Leave blank for AWS S3)</label>
+                    <input type="text" id="s3-endpoint-input" placeholder="e.g., https://minio.internal.bmas.lan:9000">
                 </div>
 
                 <div style="margin-top: 12px;">
@@ -420,11 +468,11 @@
 
                 <!-- Top Diagram: Physical RAM Mapping (Write Transfer) -->
                 <div class="svg-box">
-                    <div class="svg-title">Physical RAM Mapping (Zero-Copy /dev/shm Write Transfer)</div>
+                    <div class="svg-title">Physical RAM Mapping (NVMe / NFS / S3 &rarr; /dev/shm Zero-Copy Write)</div>
                     <svg width="100%" height="155" viewBox="0 0 520 155" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="25" y="30" width="100" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
-                        <text x="75" y="72" fill="#c9d1d9" font-size="13" font-weight="bold" text-anchor="middle">STORAGE</text>
-                        <text x="75" y="92" fill="#8b949e" font-size="11" text-anchor="middle">Source</text>
+                        <rect x="25" y="30" width="105" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
+                        <text x="77" y="70" fill="#c9d1d9" font-size="12" font-weight="bold" text-anchor="middle">NVMe / NFS / S3</text>
+                        <text x="77" y="90" fill="#8b949e" font-size="11" text-anchor="middle">MoE Source</text>
 
                         <rect x="210" y="38" width="100" height="74" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
                         <text x="260" y="80" fill="#d29922" font-size="15" font-weight="bold" text-anchor="middle">RYZEN</text>
@@ -433,11 +481,11 @@
                         <text x="445" y="72" fill="#2ea043" font-size="13" font-weight="bold" text-anchor="middle">/dev/shm</text>
                         <text x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">RAM Disk</text>
 
-                        <line x1="125" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
+                        <line x1="130" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
                         <line x1="310" y1="75" x2="395" y2="75" stroke="#30363d" stroke-width="5"/>
 
                         <g id="ram-transfer-flow" style="display:none;">
-                            <line x1="125" y1="75" x2="210" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
+                            <line x1="130" y1="75" x2="210" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
                             <line x1="310" y1="75" x2="395" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
                         </g>
                         <text id="live-pid-text" x="260" y="142" fill="#58a6ff" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">IDLE - READY FOR ZERO-COPY STAGE</text>
@@ -448,22 +496,22 @@
                 <div class="svg-box">
                     <div class="svg-title">Active MoE Inference Stream (Bus Telemetry)</div>
                     <svg width="100%" height="165" viewBox="0 0 520 165" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="25" y="30" width="100" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
-                        <text x="75" y="72" fill="#c9d1d9" font-size="13" font-weight="bold" text-anchor="middle">SHM / NVMe</text>
-                        <text x="75" y="92" fill="#8b949e" font-size="11" text-anchor="middle">MoE Weights</text>
+                        <rect x="25" y="30" width="105" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
+                        <text x="77" y="72" fill="#c9d1d9" font-size="13" font-weight="bold" text-anchor="middle">SHM / NVMe</text>
+                        <text x="77" y="92" fill="#8b949e" font-size="11" text-anchor="middle">MoE Weights</text>
 
                         <rect x="210" y="38" width="100" height="74" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
                         <text x="260" y="80" fill="#d29922" font-size="15" font-weight="bold" text-anchor="middle">RYZEN</text>
 
                         <rect x="395" y="25" width="100" height="100" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
                         <text x="445" y="72" fill="#58a6ff" font-size="12" font-weight="bold" text-anchor="middle">SYSTEM BUS</text>
-                        <text x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">Port 8000</text>
+                        <text id="svg-port-label" x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">Port 8000</text>
 
-                        <line x1="125" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
+                        <line x1="130" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
                         <line x1="310" y1="75" x2="395" y2="75" stroke="#30363d" stroke-width="5"/>
 
                         <g id="inference-stream-flow" style="display:none;">
-                            <line x1="125" y1="75" x2="210" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
+                            <line x1="130" y1="75" x2="210" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
                             <line x1="310" y1="75" x2="395" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
                         </g>
                         <text id="disk-metrics-text" x="260" y="148" fill="#2ea043" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">READ: 0.0 MB/s | WRITE: 0.0 MB/s</text>
@@ -471,8 +519,8 @@
                 </div>
             </div>
 
-            <div style="background:#05070a; border:1px solid #21262d; border-radius:6px; padding:10px; font-size:0.78rem; color:#8b949e;">
-                <strong style="color:var(--bmas-accent);">BMAS Ring-Buffer Protection:</strong> Active (<code>nohup</code> + <code>stdbuf -oL</code> + 64KB auto-trim enabled). Terminal and browser console freeze protection verified.
+            <div style="background:#05070a; border:1px solid #21262d; border-radius:6px; padding:10px; font-size:0.77rem; color:#8b949e;">
+                <strong style="color:var(--bmas-accent);">BMAS Multi-Protocol &amp; Ring-Buffer Engine:</strong> Supports custom controller/engine ports, mounted NFS/Lustre shares, AWS S3 / MinIO direct-to-RAM streaming, and 64KB ring-log auto-trimming.
             </div>
         </div>
 
@@ -513,16 +561,21 @@
         </div>
     </div>
 
-    <!-- Modal 2: MoE Model Setup & Conversion Guide -->
+    <!-- Modal 2: MoE Conversion, Custom Ports, & NFS/S3 Streaming Guide -->
     <div class="modal-overlay" id="guide-modal">
         <div class="modal-card">
-            <h2 style="margin-top:0; color:#fff;">MoE Model Installation &amp; Colibrì Quantization Guide</h2>
-            <p style="font-size:0.84rem; color:#c9d1d9;">
-                Why did <code>olmoe_i8</code> (6.9G) and <code>qwen36_i4_gs64</code> (21.5G) work while <code>Qwen3.8-27B</code> (15.3G) and <code>Qwen3.6-35B-Archive</code> (6.4G) failed?
-            </p>
-            <ul style="font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
-                <li><strong>Colibrì Native Models (<code>COLIBRI READY</code>):</strong> Folders like <code>olmoe_i8</code> and <code>qwen36_i4_gs64</code> have been quantized via <code>convert_weights.py</code> into INT8 or INT4 GroupSize-64 shards.</li>
-                <li><strong>Raw HuggingFace Checkpoints (<code>NEEDS QUANT CONVERT</code>):</strong> Raw BF16 safetensors must be converted into an INT4/INT8 Colibrì directory first:</li>
+            <h2 style="margin-top:0; color:#fff;">BMAS Project Prometheus — Ports, NFS/S3 Streaming &amp; MoE Guide</h2>
+            <ul style="font-size:0.81rem; line-height:1.5; color:#c9d1d9;">
+                <li><strong>Custom Controller &amp; Engine Ports (Doesn't have to be :5000 or :8000):</strong> Launch on any custom ports via CLI flags, or change the Engine Port live in the top-left panel:</li>
+            </ul>
+            <div class="code-block">./launch_prometheus.sh --port 7070 --engine-port 9000</div>
+            <ul style="font-size:0.81rem; line-height:1.5; color:#c9d1d9;">
+                <li><strong>Streaming from NFS, S3 Cloud, or HuggingFace API directly into <code>/dev/shm</code>:</strong>
+                    <br>&bull; <strong>NFS / Lustre / BeeGFS:</strong> Select <em>NFS Mount</em> and scan your mounted share (e.g., <code>/mnt/nfs/models</code>).
+                    <br>&bull; <strong>AWS S3 / MinIO:</strong> Select <em>AWS S3 / MinIO</em>, enter <code>s3://your-bucket/qwen36_i4_gs64</code>, and click <strong>Stream to RAM</strong> (streams via <code>s5cmd</code> or <code>aws s3 sync</code> directly into <code>/dev/shm/colibri_models/</code>).
+                    <br>&bull; <strong>HTTP / HuggingFace API:</strong> Select <em>HTTP / HuggingFace API</em>, enter repo ID or URL, and click <strong>Stream to RAM</strong>.
+                </li>
+                <li><strong>Converting Raw HuggingFace Models (<code>NEEDS QUANT CONVERT</code>) to Colibrì INT4:</strong></li>
             </ul>
             <div class="code-block">python3 /mnt/ssd/convert_weights.py \
   --input /mnt/ssd/models/Qwen3.6-35B-Archive \
@@ -535,7 +588,7 @@
     </div>
 
     <div class="nda-footer">
-        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL &amp; PROPRIETARY</strong> | Project Prometheus v1.0 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC.
+        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL &amp; PROPRIETARY</strong> | Project Prometheus v1.1 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC. All Rights Reserved.
     </div>
 
     <script>
@@ -544,11 +597,94 @@
         let lastBytesWritten = 0;
         let lastMetricTime = Date.now();
         let currentLicenseState = false;
+        let activeEnginePort = 8000;
+        let latestStatusSnapshot = {};
         const MAX_CONSOLE_LINES = 120;
         const consoleLines = [];
 
         function openColibriWeb() {
-            window.open(`http://${window.location.hostname}:8000`, '_blank');
+            window.open(`http://${window.location.hostname}:${activeEnginePort}`, '_blank');
+        }
+
+        function exportBmasPdfReport() {
+            const hw = latestStatusSnapshot.hardware || {};
+            const lic = latestStatusSnapshot.license || {};
+            const ts = new Date().toISOString();
+            document.getElementById('print-audit-meta').innerText =
+                `Node ID: ${lic.node_id || '---'} | License: ${lic.tier || '---'} | Hardware: ${hw.cpu || '---'} + ${hw.gpu || '---'} (${hw.ram_gb || 0}GB RAM) | /dev/shm: ${latestStatusSnapshot.shm_usage || '0B'} / ${latestStatusSnapshot.shm_total || '---'} | Engine Port: :${activeEnginePort} | Audit Time: ${ts}`;
+            logToConsole('[REPORT] Generating BMAS Executive Landscape PDF Audit Report...');
+            window.print();
+        }
+
+        function updateEnginePort() {
+            const newPort = parseInt(document.getElementById('engine-port-input').value, 10);
+            if (!newPort || newPort < 1024 || newPort > 65535) {
+                alert('Engine port must be between 1024 and 65535.');
+                return;
+            }
+            fetch('/api/config/ports', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ engine_port: newPort })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    logToConsole(`[PORT ERROR] ${data.error}`);
+                } else {
+                    activeEnginePort = data.engine_port;
+                    document.getElementById('top-open-web-btn').innerText = `Open Colibrì Web (:${activeEnginePort})`;
+                    document.getElementById('svg-port-label').textContent = `Port ${activeEnginePort}`;
+                    logToConsole(`[CONFIG] ${data.status}`);
+                    updateStatus();
+                }
+            });
+        }
+
+        function onProtocolChange() {
+            const proto = document.getElementById('source-protocol').value;
+            const uriInput = document.getElementById('uri-path');
+            const btn = document.getElementById('scan-or-pull-btn');
+            const s3Bar = document.getElementById('s3-extra-bar');
+
+            if (proto === 'local') {
+                uriInput.value = '/mnt/ssd/models';
+                btn.innerText = 'Scan';
+                s3Bar.style.display = 'none';
+            } else if (proto === 'nfs') {
+                uriInput.value = '/mnt/nfs/models';
+                btn.innerText = 'Scan NFS';
+                s3Bar.style.display = 'none';
+            } else if (proto === 's3') {
+                uriInput.value = 's3://bmas-moe-vault/qwen36_i4_gs64';
+                btn.innerText = 'Stream S3 -> RAM';
+                s3Bar.style.display = 'block';
+            } else if (proto === 'hf') {
+                uriInput.value = 'mastouri/GLM-5.2-colibri-int4-g64-with-int8-mtp';
+                btn.innerText = 'Stream API -> RAM';
+                s3Bar.style.display = 'none';
+            }
+        }
+
+        function handleSourceAction() {
+            const proto = document.getElementById('source-protocol').value;
+            const uri = document.getElementById('uri-path').value.trim();
+            if (proto === 'local' || proto === 'nfs') {
+                scanSource();
+            } else {
+                const s3Ep = document.getElementById('s3-endpoint-input').value.trim();
+                logToConsole(`[STREAM] Initiating direct ${proto.toUpperCase()} stream from ${uri} -> /dev/shm...`);
+                fetch('/api/load', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source_path: uri, protocol: proto, s3_endpoint: s3Ep })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) logToConsole(`[ERROR] ${data.error}`);
+                    else logToConsole(`[SYSTEM] ${data.status}`);
+                });
+            }
         }
 
         function checkSessionAuth() {
@@ -651,6 +787,13 @@
             fetch('/api/status')
                 .then(r => r.json())
                 .then(data => {
+                    latestStatusSnapshot = data;
+                    if (data.engine_port) {
+                        activeEnginePort = data.engine_port;
+                        document.getElementById('engine-port-input').value = activeEnginePort;
+                        document.getElementById('top-open-web-btn').innerText = `Open Colibrì Web (:${activeEnginePort})`;
+                        document.getElementById('svg-port-label').textContent = `Port ${activeEnginePort}`;
+                    }
                     if (data.hardware) {
                         document.getElementById('hw-badge').innerText =
                             `${data.hardware.gpu} (${data.hardware.vram_gb}GB VRAM) | ${data.hardware.ram_gb}GB RAM`;
@@ -681,7 +824,6 @@
                         checkSessionAuth();
                     }
 
-                    // Engine & Process Badges
                     const engineBadge = document.getElementById('engine-status');
                     engineBadge.innerText = data.port_status;
                     engineBadge.className = data.is_running ? "status-badge" : "status-badge offline";
@@ -692,7 +834,6 @@
                     zombieBadge.innerText = `${data.zombies} DETECTED`;
                     zombieBadge.className = data.zombies === 0 ? "status-badge" : "status-badge offline";
 
-                    // SVG Gas Gauge
                     const circumference = 125.6;
                     const offset = circumference - (circumference * Math.min(100, data.shm_percent) / 100);
                     const gaugeFill = document.getElementById('gauge-fill');
@@ -700,7 +841,6 @@
                     document.getElementById('gauge-text').innerText = `${data.shm_percent}%`;
                     document.getElementById('ram-status').innerText = `/dev/shm: ${data.shm_usage} / ${data.shm_total}`;
 
-                    // Active Target List
                     const procBody = document.getElementById('process-list-body');
                     if (!data.processes || data.processes.length === 0) {
                         procBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr>';
@@ -716,7 +856,6 @@
                         `).join('');
                     }
 
-                    // Resident RAM Disk Models — FULL-SIZED "Open Colibrì Web" BUTTON (No tiny arrow!)
                     const ramBody = document.getElementById('ram-models-body');
                     if (!data.ram_models || data.ram_models.length === 0) {
                         ramBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>';
@@ -772,11 +911,12 @@
         }
 
         function startTransfer(fullPath) {
-            logToConsole(`[COMMAND] Staging ${fullPath} -> /dev/shm...`);
+            const proto = document.getElementById('source-protocol').value;
+            logToConsole(`[COMMAND] Staging ${fullPath} (${proto.toUpperCase()}) -> /dev/shm...`);
             fetch('/api/load', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ source_path: fullPath })
+                body: JSON.stringify({ source_path: fullPath, protocol: proto })
             })
             .then(r => r.json())
             .then(data => {
@@ -786,7 +926,7 @@
         }
 
         function launchEngine(modelName) {
-            logToConsole(`[COMMAND] Booting RAM-resident model: ${modelName}`);
+            logToConsole(`[COMMAND] Booting RAM-resident model: ${modelName} on Port :${activeEnginePort}`);
             fetch('/api/launch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -803,7 +943,7 @@
         }
 
         function launchDirect(fullPath) {
-            logToConsole(`[COMMAND] Direct NVMe mmap stream launch: ${fullPath}`);
+            logToConsole(`[COMMAND] Direct NVMe/NFS mmap stream launch: ${fullPath} on Port :${activeEnginePort}`);
             fetch('/api/launch_direct', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -834,7 +974,7 @@
         }
 
         function stopEngine() {
-            logToConsole(`[COMMAND] Stopping active inference engine...`);
+            logToConsole(`[COMMAND] Stopping active inference engine (:${activeEnginePort})...`);
             fetch('/api/stop', { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
@@ -844,7 +984,7 @@
         }
 
         function sterilizeEnvironment() {
-            logToConsole(`[COMMAND] Executing Force Sterilization (lsof + /dev/shm purge)...`);
+            logToConsole(`[COMMAND] Executing Force Sterilization (lsof :${activeEnginePort} + /dev/shm purge)...`);
             fetch('/api/sterilize', { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
@@ -902,7 +1042,7 @@
                 }).catch(() => {});
         }
 
-        logToConsole("[BMAS-PROMETHEUS] Dashboard initialized. Ring-buffer protection online.");
+        logToConsole("[BMAS-PROMETHEUS] Dashboard v1.1 initialized. Multi-protocol & custom port support online.");
         updateStatus();
         scanSource();
         setInterval(updateStatus, 3000);

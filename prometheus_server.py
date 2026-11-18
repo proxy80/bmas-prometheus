@@ -1,30 +1,34 @@
 #!/usr/bin/env python3
 # ==============================================================================
 # BARE METAL APPLIED SCIENCE LLC (BMAS) - CONFIDENTIAL & PROPRIETARY
-# Project : BMAS Project Prometheus Server (C-Extension Backed Controller)
+# Project : BMAS Project Prometheus Server v1.1.0 (Custom Ports + S3/NFS/HTTP)
 # Copyright (c) 2026 Bare Metal Applied Science LLC. All Rights Reserved.
 # ==============================================================================
 
 import os
+import argparse
 import logging
 import subprocess
 from flask import Flask, jsonify, request
 
-# Import compiled Cython shared object (.so)
 from prometheus_pkg.prometheus_core import (
     get_system_status,
     inspect_model_directory,
     sterilize_environment,
     launch_detached_coli,
+    stage_remote_or_local_to_shm,
     verify_node_license,
     trim_ring_log,
 )
 
 app = Flask(__name__, static_folder=".", static_url_path="")
 
-# CRITICAL FIX: Silence Werkzeug per-request stdout spam so SSH / TTY buffers never overflow
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
+
+# Configurable default engine port (can be overridden via CLI --engine-port or GUI)
+CURRENT_ENGINE_PORT = int(os.environ.get("BMAS_ENGINE_PORT", "8000"))
+CONTROLLER_PORT = int(os.environ.get("BMAS_CONTROLLER_PORT", "5000"))
 
 
 def _require_license():
@@ -39,7 +43,24 @@ def serve_dashboard():
 
 @app.route("/api/status", methods=["GET"])
 def api_status():
-    return jsonify(get_system_status())
+    global CURRENT_ENGINE_PORT
+    req_port = request.args.get("engine_port", type=int)
+    if req_port and 1024 <= req_port <= 65535:
+        CURRENT_ENGINE_PORT = req_port
+    status = get_system_status(CURRENT_ENGINE_PORT)
+    status["controller_port"] = CONTROLLER_PORT
+    return jsonify(status)
+
+
+@app.route("/api/config/ports", methods=["POST"])
+def set_engine_port():
+    global CURRENT_ENGINE_PORT
+    data = request.json or {}
+    new_port = int(data.get("engine_port", CURRENT_ENGINE_PORT))
+    if not (1024 <= new_port <= 65535):
+        return jsonify({"error": "Port must be between 1024 and 65535"}), 400
+    CURRENT_ENGINE_PORT = new_port
+    return jsonify({"status": f"Target Engine Port updated to :{CURRENT_ENGINE_PORT}", "engine_port": CURRENT_ENGINE_PORT})
 
 
 @app.route("/api/license/activate", methods=["POST"])
@@ -84,7 +105,7 @@ def get_io_metrics():
 
 @app.route("/api/kill", methods=["POST"])
 def kill_process():
-    ok, lic = _require_license()
+    ok, _ = _require_license()
     if not ok:
         return jsonify({"error": "Commercial License Required ($499)"}), 403
     data = request.json or {}
@@ -100,9 +121,9 @@ def scan_source():
     data = request.json or {}
     path = data.get("path", "").strip()
     if not os.path.exists(path):
-        return jsonify({"error": f"Path not found or not mounted: {path}"}), 400
+        return jsonify({"error": f"Local/NFS path not found or not mounted: {path}"}), 400
 
-    status_snapshot = get_system_status()
+    status_snapshot = get_system_status(CURRENT_ENGINE_PORT)
     shm_total_gb = status_snapshot.get("shm_total_gb", 15.6)
 
     models = []
@@ -117,7 +138,9 @@ def scan_source():
 @app.route("/api/io_stream", methods=["GET"])
 def io_stream():
     try:
-        pids = subprocess.check_output(["pgrep", "-f", "cp -r"], stderr=subprocess.DEVNULL).decode().strip().splitlines()
+        pids = subprocess.check_output(
+            ["pgrep", "-f", "cp -r|aws s3|s5cmd|hf download|wget"], stderr=subprocess.DEVNULL
+        ).decode().strip().splitlines()
         active_pids = [p for p in pids if p]
         if active_pids:
             pid = active_pids[0]
@@ -136,7 +159,7 @@ def api_sterilize():
     ok, _ = _require_license()
     if not ok:
         return jsonify({"error": "Commercial License Required"}), 403
-    return jsonify(sterilize_environment(wipe_shm=True))
+    return jsonify(sterilize_environment(wipe_shm=True, engine_port=CURRENT_ENGINE_PORT))
 
 
 @app.route("/api/stop", methods=["POST"])
@@ -144,7 +167,7 @@ def api_stop():
     ok, _ = _require_license()
     if not ok:
         return jsonify({"error": "Commercial License Required"}), 403
-    return jsonify(sterilize_environment(wipe_shm=False))
+    return jsonify(sterilize_environment(wipe_shm=False, engine_port=CURRENT_ENGINE_PORT))
 
 
 @app.route("/api/load", methods=["POST"])
@@ -155,22 +178,25 @@ def load_to_ram():
 
     data = request.json or {}
     source_path = data.get("source_path", "").strip()
-    if not os.path.exists(source_path):
-        return jsonify({"error": f"Source path not found: {source_path}"}), 400
+    protocol = data.get("protocol", "local").strip().lower()
+    target_name = data.get("target_name", "").strip()
+    s3_endpoint = data.get("s3_endpoint", "").strip()
 
-    status_snapshot = get_system_status()
-    shm_total_gb = status_snapshot.get("shm_total_gb", 15.6)
-    meta = inspect_model_directory(source_path, shm_total_gb)
+    if protocol in ("local", "nfs") and not source_path.startswith(("s3://", "http://", "https://", "hf://")):
+        if not os.path.exists(source_path):
+            return jsonify({"error": f"Source path not found: {source_path}"}), 400
+        status_snapshot = get_system_status(CURRENT_ENGINE_PORT)
+        shm_total_gb = status_snapshot.get("shm_total_gb", 15.6)
+        meta = inspect_model_directory(source_path, shm_total_gb)
+        if not meta.get("fits_shm", True):
+            return jsonify({
+                "error": f"Model ({meta.get('size')}) exceeds /dev/shm capacity ({shm_total_gb}GB). Use 'Direct Run' or expand /dev/shm."
+            }), 400
 
-    if not meta.get("fits_shm", True):
-        return jsonify({
-            "error": f"Model ({meta.get('size')}) exceeds /dev/shm capacity ({shm_total_gb}GB). Use 'Direct Run' or expand /dev/shm."
-        }), 400
-
-    os.makedirs("/dev/shm/colibri_models", exist_ok=True)
-    cmd = f"nohup cp -r '{source_path}' /dev/shm/colibri_models/ >/dev/null 2>&1 < /dev/null &"
-    subprocess.Popen(cmd, shell=True, start_new_session=True)
-    return jsonify({"status": f"Zero-Copy Staging Initiated: {meta.get('name')} ({meta.get('size')}) -> /dev/shm"})
+    res = stage_remote_or_local_to_shm(source_path, protocol=protocol, target_name=target_name, s3_endpoint=s3_endpoint)
+    if "error" in res:
+        return jsonify(res), 400
+    return jsonify(res)
 
 
 @app.route("/api/launch", methods=["POST"])
@@ -186,7 +212,7 @@ def launch_engine():
     if not meta.get("ready_for_coli", True):
         return jsonify({"error": f"Cannot boot {model_name} in Colibrì: {meta.get('hint')}"}), 400
 
-    res = launch_detached_coli(target_path, mode_label="RAM Mapped /dev/shm")
+    res = launch_detached_coli(target_path, mode_label="RAM Mapped /dev/shm", engine_port=CURRENT_ENGINE_PORT)
     if "error" in res:
         return jsonify(res), 400
     return jsonify(res)
@@ -204,7 +230,7 @@ def launch_direct():
     if not meta.get("ready_for_coli", True):
         return jsonify({"error": f"Format Incompatible with Colibrì: {meta.get('hint')}"}), 400
 
-    res = launch_detached_coli(target_path, mode_label="Direct NVMe/SSD mmap Stream")
+    res = launch_detached_coli(target_path, mode_label="Direct NVMe/NFS mmap Stream", engine_port=CURRENT_ENGINE_PORT)
     if "error" in res:
         return jsonify(res), 400
     return jsonify(res)
@@ -224,5 +250,14 @@ def get_logs():
 
 
 if __name__ == "__main__":
-    print("[BMAS-PROMETHEUS] Starting C-Extension Controller on http://0.0.0.0:5000 (Silent WSGI Mode)")
-    app.run(host="0.0.0.0", port=5000, threaded=True)
+    parser = argparse.ArgumentParser(description="BMAS Project Prometheus Server")
+    parser.add_argument("--host", default=os.environ.get("BMAS_HOST", "0.0.0.0"), help="Controller bind host")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("BMAS_CONTROLLER_PORT", "5000")), help="Web Controller TCP port (default: 5000)")
+    parser.add_argument("--engine-port", type=int, default=int(os.environ.get("BMAS_ENGINE_PORT", "8000")), help="Inference Engine TCP port (default: 8000)")
+    args = parser.parse_args()
+
+    CONTROLLER_PORT = args.port
+    CURRENT_ENGINE_PORT = args.engine_port
+
+    print(f"[BMAS-PROMETHEUS] Starting C-Extension Controller on http://{args.host}:{CONTROLLER_PORT} (Engine Port :{CURRENT_ENGINE_PORT})")
+    app.run(host=args.host, port=CONTROLLER_PORT, threaded=True)
