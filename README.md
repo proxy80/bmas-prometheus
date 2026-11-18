@@ -1,68 +1,77 @@
-# BMAS Project Prometheus (`bmas-prometheus`)
-**Cython-Compiled (`.so`) Bare-Metal Mixture-of-Experts (MoE) `/dev/shm` Memory-Mapped I/O & Multi-Protocol Runtime Orchestrator**
+# BMAS Project Prometheus (`bmas-prometheus`) v1.2.0
+**Cython-Compiled (`.so`) Bare-Metal Mixture-of-Experts (MoE) `/dev/shm` Memory-Mapped I/O, PKI/mTLS & Multi-Arch Runtime Orchestrator**
 
-Developed by **Bare Metal Applied Science LLC (BMAS)**, Project Prometheus is an enterprise bare-metal memory orchestration appliance designed to eliminate storage I/O bottlenecks, orphaned shared-memory descriptor locks, and terminal buffer freezes when executing large Mixture-of-Experts (MoE) language models (`Qwen3.6-35B-A3B`, `OLMoE`, `GLM-5.2`, `DeepSeek`) across local workstations, AMD Unified Memory rigs, and multi-GPU NVIDIA servers.
+Developed by **Bare Metal Applied Science LLC (BMAS)**, Project Prometheus is an enterprise bare-metal memory orchestration appliance engineered to eliminate storage I/O bottlenecks, orphaned shared-memory descriptor locks, and terminal buffer freezes when executing large Mixture-of-Experts (MoE) language models (`Qwen3.6-35B-A3B`, `OLMoE`, `GLM-5.2`, `DeepSeek`) across **AMD (EPYC/Ryzen)**, **Intel (Xeon/Core)**, and **ARM64 (Neoverse/Ampere/Grace)** hosts.
 
 ---
 
 ## 1. What Problem Does Project Prometheus Solve?
 
-When running sparse Mixture-of-Experts (MoE) architectures on local or brownfield server hardware, token velocity is overwhelmingly bottlenecked by **physical storage read latency** and **POSIX shared-memory fragmentation**:
 1. **Storage Starvation:** Streaming active MoE expert weights from standard SSDs, USB archives, or network shares introduces severe token-to-token jitter.
 2. **Orphaned `/dev/shm` Locks:** Abruptly terminated inference jobs (`coli`, `vLLM`, `llama-server`) leave zombie processes and locked memory segments inside `/dev/shm` and on TCP inference ports, causing subsequent runs to crash with `OOM` or `Address already in use`.
-3. **Unquantized Format Mismatches:** Operators frequently mix raw HuggingFace `.safetensors` archives, `.gguf` files, and native Colibrì quantized shards (`int4_gs64` / `int8`), causing silent boot failures.
-4. **TTY / Browser Buffer Freezes:** Long-running inference daemons flood terminal `stdout` and web log windows until the process blocks on `SIGPIPE` or crashes the browser DOM.
-
-**Project Prometheus** solves all four at the C-extension level (`prometheus_core.cpython-312-x86_64-linux-gnu.so`).
-
----
-
-## 2. Core Capabilities
-
-* **Zero-Copy `/dev/shm` RAM Disk Staging:** Streams multi-gigabyte quantized MoE models directly into Linux volatile shared memory (`/dev/shm/colibri_models`) so the inference engine executes at full DDR4/DDR5 memory bus bandwidth.
-* **Multi-Protocol MoE Ingestion (Local NVMe / NFS / AWS S3 / HTTP API):**
-  * **Local NVMe / SSD / USB:** Instant local block-to-RAM staging or zero-copy `Direct Run`.
-  * **Enterprise Network Shares (`NFS` / `Lustre` / `BeeGFS` / `Spectrum Scale`):** Scans mounted cluster file systems and stages weights directly into node-local `/dev/shm`.
-  * **AWS S3 & Sovereign MinIO (`s3://`):** Streams model buckets directly from object storage into `/dev/shm` volatile RAM via `s5cmd` or `aws s3 sync` without writing to local disk.
-  * **HTTP / HuggingFace Hub API:** Pulls model repositories directly into `/dev/shm` via `hf download` or `wget`.
-* **Custom Controller & Engine Port Binding:** Never locked to port `5000` or `8000`. Bind the Web Controller and the Inference Engine to any TCP ports via CLI flags, environment variables, or live inside the Web GUI.
-* **Sterile `lsof` & `pgrep` Process Reaper:** Audits active TCP port bindings and sweeps zombie inference processes before staging or hot-swapping weights.
-* **Automated MoE Format Inspector:** Automatically badges every model directory as `COLIBRI READY`, `GGUF ARCHIVE`, `NEEDS QUANT CONVERT`, or `DIRECT STREAM ONLY (>SHM)`.
-* **1-Click BMAS Executive PDF Audit Report:** Built-in landscape `@media print` report generator that exports a timestamped **STAR Infrastructure & Memory Audit Report** (with protected SVG telemetry diagrams, Node ID, and license verification) for CISO/CAB compliance documentation.
+3. **Unquantized Format Mismatches:** Operators frequently mix raw HuggingFace `.safetensors` archives, `.gguf` files, and native Colibrì quantized shards (`int4_gs64` / `int8`). Prometheus auto-inspects directories and flags incompatible formats before launch.
+4. **Enterprise / DoD TLS & mTLS Friction:** Pulling model weights from sovereign MinIO/S3, Azure Blob, GCS, or air-gapped HTTPS APIs fails without custom CA bundles. Prometheus injects PEM/PKI trust stores directly into volatile RAM (`/dev/shm/.bmas_secure`).
+5. **TTY / Browser Buffer Freezes:** Auto-trimming 64KB ring buffers prevent long-running daemons from blocking on `SIGPIPE` or freezing the browser DOM.
 
 ---
 
-## 3. Quick Start & Custom Port Configuration
+## 2. Key Features in v1.2.0
 
-### Default Launch (Controller on `:5000`, Engine on `:8000`)
+- **Zero Hardcoded Defaults (Blank-Start Design):** Fresh installations start with an empty source path and model table—no pre-baked lab paths or hardcoded model lists.
+- **80% Viewport PKI / PEM & Endpoint Configuration Modal:** Standardized `80vw` enterprise modal (1440 UI format) supporting:
+  - Protocol/Trust checkboxes: **AWS S3 / Sovereign MinIO**, **Azure Blob**, **Google Cloud Storage (GCS)**, **DoD / Enterprise mTLS PKI**, **Secure NFSv4 / Lustre / Kerberos**, and **Private HTTPS / TLS 1.3 APIs**.
+  - Volatile RAM-only storage in `/dev/shm/.bmas_secure/` (`chmod 600`) with automatic environment injection (`AWS_CA_BUNDLE`, `REQUESTS_CA_BUNDLE`, `SSL_CERT_FILE`). Certificates are never written to persistent disk and purge automatically on reboot.
+- **Dynamic Multi-Arch Hardware & I/O Telemetry:** Live `/proc/cpuinfo`, `/proc/meminfo`, and `nvidia-smi` profiling across **AMD**, **Intel**, and **ARM64** systems, displaying core count, architecture, DDR RAM utilization, `/dev/shm` capacity, active MoE source block type, and real-time MB/s bus throughput.
+- **Cython `.so` Hardware-Bound Licensing:** Core telemetry, sterilization, and cryptographic license verification are compiled into a stripped ELF shared object (`prometheus_core.so`).
+- **Executive Landscape PDF Audit Export:** One-click STAR-formatted BMAS HTML Report export via browser print-to-PDF.
+
+---
+
+## 3. Quick Start & Deployment
+
+### Prerequisites
+- Linux host (Ubuntu 22.04/24.04, Rocky Linux 9, RHEL 9) on `x86_64` or `aarch64`
+- Python 3.10+ with `flask` installed
+- `lsof`, `du`, `df`, and `coli` (Colibrì MoE runtime) available in `$PATH`
+- Optional cloud CLI tools depending on ingest protocol: `s5cmd` or `aws` (S3/MinIO), `azcopy` (Azure), `gsutil` (GCS), `hf` / `wget` (HuggingFace/HTTPS)
+
+### Launch the Control Plane
+
+    cd ~/bmas_ai/prometheus
     ./launch_prometheus.sh
 
-### Custom Port Launch (Example: Controller on `:7070`, Engine on `:9000`)
-    ./launch_prometheus.sh --port 7070 --engine-port 9000
+By default, Prometheus binds the Web Controller to **TCP `:5000`** and targets the inference engine on **TCP `:8000`** (configurable live in the Web UI or via `--port` / `--engine-port` flags).
 
-### Or via Environment Variables
-    BMAS_CONTROLLER_PORT=7070 BMAS_ENGINE_PORT=9000 ./launch_prometheus.sh
+Open your browser to:
 
-*(Note: You can also change the target Engine Port dynamically at any time inside the top-left **Environment Status** panel of the Web GUI).*
+    http://<host-ip>:5000
 
 ---
 
-## 4. Multi-Protocol Streaming Guide (NFS, S3, & API)
+## 4. Operator Workflow
 
-Inside the **Model Sourcing & Multi-Protocol Provisioning** panel:
-1. **Local NVMe / SSD / USB:** Select `Local NVMe / SSD / USB`, enter `/mnt/ssd/models` (or `/mnt/usb`), and click **Scan**.
-2. **NFS / Cluster Share:** Mount your NFS export (`sudo mount -t nfs <NFS_IP>:/export/models /mnt/nfs/models`), select `NFS / Lustre / BeeGFS Mount`, enter `/mnt/nfs/models`, and click **Scan NFS**.
-3. **AWS S3 or Sovereign MinIO Bucket:** Select `AWS S3 / MinIO (s3://)`, enter `s3://your-bucket/qwen36_i4_gs64` (plus an optional custom MinIO endpoint URL), and click **Stream S3 -> RAM**. Prometheus streams the bucket directly into `/dev/shm/colibri_models/`.
-4. **HTTP / HuggingFace API:** Select `HTTP / HuggingFace API`, enter the repository ID or artifact URL, and click **Stream API -> RAM**.
+1. **Authenticate & Verify License:**
+   - Enter the BMAS Operator Passcode (default: `bmas2026`).
+   - If the node is unlicensed, copy the **Hardware Node Fingerprint** (`BMAS-XXXX-XXXX-XXXX`) and apply your `PROM-...` commercial activation key.
+2. **Configure PKI / TLS Trust (Optional for Cloud / DoD Enclaves):**
+   - Click **PKI / Endpoint Config (80%)** in the top bar.
+   - Check your target protocols, enter any custom S3/MinIO endpoint URL, paste your PEM Root/Server CA bundle (and optional mTLS client private key), and click **Save & Inject PKI / TLS Trust**.
+3. **Source & Stage MoE Models:**
+   - Select your **Ingest Protocol** (`Local NVMe`, `NFS / Lustre`, `AWS S3 / MinIO`, `Azure Blob`, `GCS`, or `HTTPS / HF API`).
+   - Enter your directory path or stream URI and click **Scan** (for local/NFS) or **Stream -> RAM** (for cloud/API).
+   - For verified `COLIBRI READY` models, click **Load to RAM** (zero-copy `/dev/shm` staging) or **Direct Run** (direct `mmap` stream).
+4. **Boot & Monitor:**
+   - Once resident in `/dev/shm/colibri_models`, click **Boot Engine** and open the Colibrì Web interface via **Open Colibrì Web (:8000)**.
+   - Use **Stop Engine** to halt inference while keeping `/dev/shm` warm, or **Force Sterilize** to SIGKILL orphaned processes and purge `/dev/shm`.
 
 ---
 
-## 5. Commercial Licensing ($499 Node License / $180 Annual Maintenance)
+## 5. Commercial Licensing & Support
 
-Project Prometheus distributes its core hardware-inspection, `/dev/shm` reaper, and multi-protocol orchestration routines as a stripped Linux C-extension shared object (`prometheus_core.cpython-312-x86_64-linux-gnu.so`).
-
-* **Commercial Node License ($499 Base / $180 Annual Renewal):** Unlocks `/dev/shm` zero-copy staging, multi-protocol S3/NFS/API streaming, `lsof`/`pgrep` process sterilization, and 1-click engine orchestration.
-* **Activation:** Copy your **Hardware Node Fingerprint** (`BMAS-XXXX-XXXX-XXXX`) from the login gate and contact **Bare Metal Applied Science LLC** (`jefferson@baremetalappliedscience.com`) to receive your hardware-bound `PROM-...` activation key.
+- **Commercial Node License:** `$499.00` Perpetual Base (hardware-bound via Cython `.so` Node Fingerprint)
+- **Annual Maintenance & Updates:** `$180.00 / year`
+- **Enterprise B2B / C2C Integration & Consulting:** Bare Metal Applied Science LLC (`jefferson@baremetalappliedscience.com` | `baremetalappliedscience.com`)
 
 ---
-Copyright (c) 2026 Bare Metal Applied Science LLC. All Rights Reserved.
+
+*Copyright © 2026 Bare Metal Applied Science LLC. Confidential & Proprietary. All Rights Reserved.*
