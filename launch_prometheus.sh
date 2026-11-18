@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# BMAS PROJECT PROMETHEUS v1.1.0 - DETACHED NOHUP DAEMON LAUNCHER
+# BMAS PROJECT PROMETHEUS v1.2.0 - DETACHED NOHUP DAEMON LAUNCHER
 # Supports Custom Controller & Engine Ports:
 #   Usage: ./launch_prometheus.sh [--port 5000] [--engine-port 8000]
 #   Or via Env: BMAS_CONTROLLER_PORT=7070 BMAS_ENGINE_PORT=9000 ./launch_prometheus.sh
@@ -38,7 +38,7 @@ DAEMON_PID=$!
 sleep 1
 
 echo "=================================================================="
-echo " BMAS PROJECT PROMETHEUS v1.1.0 ONLINE (DETACHED NOHUP DAEMON)    "
+echo " BMAS PROJECT PROMETHEUS v1.2.0 ONLINE (DETACHED NOHUP DAEMON)    "
 echo "=================================================================="
 echo " Daemon PID     : $DAEMON_PID"
 echo " Web Controller : http://$(hostname):${CTRL_PORT} (or http://localhost:${CTRL_PORT})"

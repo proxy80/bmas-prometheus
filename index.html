@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BMAS PROJECT PROMETHEUS: COLIBRÌ MoE ARCHITECTURE CONTROLLER</title>
+    <title>BMAS PROJECT PROMETHEUS v1.2: COLIBRÌ MoE ARCHITECTURE CONTROLLER</title>
     <style>
         :root {
             --bmas-bg: #0d1117;
@@ -15,7 +15,6 @@
             --bmas-danger: #f85149;
             --bmas-border: #30363d;
         }
-
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -27,263 +26,110 @@
             flex-direction: column;
             min-height: 100vh;
         }
-
-        /* FULL-SCREEN BMAS LOGIN & COMMERCIAL LOCKOUT GATE */
         .auth-gate-overlay {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: radial-gradient(circle at center, #161b22 0%, #05070a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20000;
-            padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 20000; padding: 20px;
         }
         .auth-card {
-            background: var(--bmas-panel);
-            border: 2px solid var(--bmas-accent);
-            border-radius: 10px;
-            max-width: 520px;
-            width: 100%;
-            padding: 28px;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.85);
-            text-align: center;
+            background: var(--bmas-panel); border: 2px solid var(--bmas-accent);
+            border-radius: 10px; max-width: 520px; width: 100%; padding: 28px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.85); text-align: center;
         }
-        .auth-card h1 {
-            margin: 0 0 6px 0;
-            font-size: 1.35rem;
-            color: #fff;
-            letter-spacing: 0.8px;
-        }
-        .auth-card .auth-sub {
-            color: var(--bmas-accent);
-            font-size: 0.82rem;
-            font-weight: 700;
-            margin-bottom: 18px;
-            text-transform: uppercase;
-        }
-        .auth-field {
-            text-align: left;
-            margin-bottom: 14px;
-        }
-
+        .auth-card h1 { margin: 0 0 6px 0; font-size: 1.35rem; color: #fff; letter-spacing: 0.8px; }
+        .auth-card .auth-sub { color: var(--bmas-accent); font-size: 0.82rem; font-weight: 700; margin-bottom: 18px; text-transform: uppercase; }
+        .auth-field { text-align: left; margin-bottom: 14px; }
         .top-header {
-            background-color: var(--bmas-panel);
-            border: 1px solid var(--bmas-border);
-            border-radius: 8px;
-            padding: 12px 20px;
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            background-color: var(--bmas-panel); border: 1px solid var(--bmas-border);
+            border-radius: 8px; padding: 12px 20px; margin-bottom: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px;
         }
-        .top-header h1 {
-            margin: 0;
-            font-size: 1.22rem;
-            color: #fff;
-            letter-spacing: 0.5px;
-        }
-        .top-header .subtitle {
-            color: var(--bmas-accent);
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 3px;
-        }
-        .header-badges {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* Print-Only Executive STAR / Audit Summary Banner */
+        .top-header h1 { margin: 0; font-size: 1.22rem; color: #fff; letter-spacing: 0.5px; }
+        .top-header .subtitle { color: var(--bmas-accent); font-size: 0.8rem; font-weight: 600; margin-top: 3px; }
+        .header-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .print-audit-summary {
-            display: none;
-            border: 2px solid #000;
-            padding: 12px 16px;
-            margin-bottom: 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #000;
-            background: #f8f9fa;
+            display: none; border: 2px solid #000; padding: 12px 16px;
+            margin-bottom: 14px; border-radius: 6px; font-size: 0.85rem;
+            color: #000; background: #f8f9fa;
         }
-
-        .grid-3col {
-            display: grid;
-            grid-template-columns: 1.18fr 1.12fr 1fr;
-            gap: 14px;
-            flex: 1;
-        }
-        @media (max-width: 1200px) {
-            .grid-3col { grid-template-columns: 1fr; }
-        }
-
-        .col-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
+        .grid-3col { display: grid; grid-template-columns: 1.18fr 1.15fr 1fr; gap: 14px; flex: 1; }
+        @media (max-width: 1200px) { .grid-3col { grid-template-columns: 1fr; } }
+        .col-stack { display: flex; flex-direction: column; gap: 14px; }
         .panel {
-            background-color: var(--bmas-panel);
-            border: 1px solid var(--bmas-border);
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.35);
+            background-color: var(--bmas-panel); border: 1px solid var(--bmas-border);
+            border-radius: 8px; padding: 16px; box-shadow: 0 4px 8px rgba(0,0,0,0.35);
         }
         .panel h2 {
-            color: #fff;
-            font-size: 1.02rem;
-            margin: 0 0 12px 0;
-            padding-bottom: 8px;
+            color: #fff; font-size: 1.02rem; margin: 0 0 12px 0; padding-bottom: 8px;
             border-bottom: 1px solid var(--bmas-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--bmas-accent);
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.8rem; color: var(--bmas-accent); }
+        input[type="text"], input[type="number"], input[type="password"], select, textarea {
+            width: 100%; padding: 8px 10px; background-color: var(--bmas-bg);
+            border: 1px solid var(--bmas-border); color: var(--bmas-text);
+            border-radius: 4px; font-size: 0.84rem;
         }
-        input[type="text"], input[type="number"], input[type="password"], select {
-            width: 100%;
-            padding: 8px 10px;
-            background-color: var(--bmas-bg);
-            border: 1px solid var(--bmas-border);
-            color: var(--bmas-text);
-            border-radius: 4px;
-            font-size: 0.84rem;
+        textarea { font-family: 'Consolas', 'Courier New', monospace; font-size: 0.78rem; resize: vertical; }
+        button {
+            display: inline-block; background-color: var(--bmas-success); color: #fff;
+            border: none; padding: 7px 13px; border-radius: 4px; cursor: pointer;
+            font-weight: 700; font-size: 0.8rem; transition: opacity 0.15s;
         }
-
-        button, .btn-link {
-            display: inline-block;
-            background-color: var(--bmas-success);
-            color: #fff;
-            border: none;
-            padding: 7px 13px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-decoration: none;
-            transition: opacity 0.15s;
-        }
-        button:hover, .btn-link:hover { opacity: 0.92; }
+        button:hover { opacity: 0.92; }
         button:disabled { opacity: 0.35; cursor: not-allowed; }
-        button.danger, .btn-link.danger { background-color: var(--bmas-danger); }
-        button.warning, .btn-link.warning { background-color: var(--bmas-warning); color: #000; }
-        button.accent, .btn-link.accent { background-color: var(--bmas-accent); color: #000; }
-        button.small, .btn-link.small { padding: 5px 10px; font-size: 0.76rem; }
-
+        button.danger { background-color: var(--bmas-danger); }
+        button.warning { background-color: var(--bmas-warning); color: #000; }
+        button.accent { background-color: var(--bmas-accent); color: #000; }
+        button.small { padding: 5px 10px; font-size: 0.76rem; }
         .status-badge {
-            display: inline-block;
-            padding: 3px 9px;
-            border-radius: 12px;
-            font-size: 0.74rem;
-            font-weight: 700;
-            background-color: var(--bmas-success);
-            color: #fff;
+            display: inline-block; padding: 3px 9px; border-radius: 12px;
+            font-size: 0.74rem; font-weight: 700; background-color: var(--bmas-success); color: #fff;
         }
         .status-badge.offline, .status-badge.danger { background-color: var(--bmas-danger); }
         .status-badge.warning { background-color: var(--bmas-warning); color: #000; }
         .status-badge.accent { background-color: var(--bmas-accent); color: #000; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        th, td {
-            padding: 7px 6px;
-            text-align: left;
-            border-bottom: 1px solid #21262d;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 7px 6px; text-align: left; border-bottom: 1px solid #21262d; }
         th { color: #8b949e; font-weight: 600; border-bottom: 1px solid var(--bmas-border); }
-
-        .svg-box {
-            background: #05070a;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            padding: 12px;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .svg-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--bmas-accent);
-            margin-bottom: 6px;
-        }
-
+        .svg-box { background: #05070a; border: 1px solid #21262d; border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 12px; }
+        .svg-title { font-size: 0.8rem; font-weight: 700; color: var(--bmas-accent); margin-bottom: 6px; }
         .console-log {
-            background: #000;
-            color: #2ea043;
-            font-family: 'Consolas', 'Courier New', monospace;
-            padding: 10px;
-            height: 240px;
-            overflow-y: auto;
-            border-radius: 4px;
-            border: 1px solid var(--bmas-border);
-            font-size: 0.76rem;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            word-break: break-all;
+            background: #000; color: #2ea043; font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px; height: 240px; overflow-y: auto; border-radius: 4px;
+            border: 1px solid var(--bmas-border); font-size: 0.76rem; line-height: 1.4;
+            white-space: pre-wrap; word-break: break-all;
         }
-        .console-log.engine-stream {
-            color: #58a6ff;
-            height: 290px;
-        }
-
+        .console-log.engine-stream { color: #58a6ff; height: 290px; }
         @keyframes streamData { 0% { stroke-dashoffset: 100; } 100% { stroke-dashoffset: 0; } }
         .data-stream { stroke-dasharray: 10; animation: streamData 1s linear infinite; }
-
+        /* STANDARDIZED 80% VIEWPORT MODAL OVERLAY (1440 TRON STANDARD) */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.82);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 20px;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.84);
+            display: none; justify-content: center; align-items: center;
+            z-index: 9999; padding: 20px;
         }
-        .modal-card {
-            background: var(--bmas-panel);
-            border: 1px solid var(--bmas-accent);
-            border-radius: 8px;
-            max-width: 740px;
-            width: 100%;
-            padding: 22px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        .modal-card-80 {
+            background: var(--bmas-panel); border: 2px solid var(--bmas-accent);
+            border-radius: 10px; width: 80vw; max-width: 1152px; max-height: 85vh;
+            overflow-y: auto; padding: 24px 28px; box-shadow: 0 15px 45px rgba(0,0,0,0.9);
         }
-        .code-block {
-            background: #000;
-            color: #58a6ff;
-            font-family: monospace;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid var(--bmas-border);
-            font-size: 0.78rem;
-            overflow-x: auto;
-            margin: 8px 0 14px 0;
+        .checkbox-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 10px; margin: 10px 0 16px 0;
         }
-
+        .checkbox-item {
+            background: #0d1117; border: 1px solid var(--bmas-border); border-radius: 6px;
+            padding: 10px 12px; display: flex; align-items: center; gap: 10px;
+            cursor: pointer; font-size: 0.82rem; color: #c9d1d9;
+        }
+        .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--bmas-accent); }
         .nda-footer {
-            margin-top: 14px;
-            padding-top: 10px;
-            border-top: 1px solid var(--bmas-border);
-            text-align: center;
-            font-size: 0.75rem;
-            color: #8b949e;
+            margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--bmas-border);
+            text-align: center; font-size: 0.75rem; color: #8b949e;
         }
-
-        /* BMAS HTML REPORT LANDSCAPE & SVG PDF PRINT PROTECTION BLOCKS */
         @page { size: landscape; margin: 10mm; }
         @media print {
             body { background-color: #fff !important; color: #000 !important; padding: 0; }
@@ -299,72 +145,55 @@
     </style>
 </head>
 <body>
-
-    <!-- FULL-SCREEN BMAS OPERATOR LOGIN & LICENSE LOCKOUT GATE -->
     <div class="auth-gate-overlay" id="auth-gate">
         <div class="auth-card">
             <div style="font-size:0.75rem; color:#8b949e; letter-spacing:1.5px; margin-bottom:4px;">BARE METAL APPLIED SCIENCE LLC</div>
-            <h1>PROJECT PROMETHEUS v1.1</h1>
-            <div class="auth-sub">Sovereign MoE /dev/shm Control Plane Gate</div>
-
+            <h1>PROJECT PROMETHEUS v1.2</h1>
+            <div class="auth-sub">Sovereign MoE /dev/shm &amp; PKI Control Plane Gate</div>
             <div class="auth-field">
                 <label>Hardware Node Fingerprint (Cython .so Bound)</label>
                 <input type="text" id="gate-node-id" readonly value="PROBING NODE..." style="color:var(--bmas-warning); font-family:monospace; font-weight:bold; text-align:center;">
             </div>
-
             <div class="auth-field">
                 <label>Commercial License Status ($499 Base / $180 Yr Renewal)</label>
                 <input type="text" id="gate-license-status" readonly value="VERIFYING..." style="font-family:monospace; font-weight:bold; text-align:center;">
             </div>
-
             <div class="auth-field" id="gate-key-box" style="display:none;">
                 <label style="color:var(--bmas-danger);">Enter Commercial Activation Key (PROM-...)</label>
                 <input type="text" id="gate-license-input" placeholder="PROM-...">
             </div>
-
             <div class="auth-field">
                 <label>BMAS Operator Console Passcode (Default: <code>bmas2026</code>)</label>
                 <input type="password" id="gate-passcode" placeholder="Enter Operator Passcode..." onkeydown="if(event.key==='Enter') unlockConsoleGate()">
             </div>
-
             <div id="gate-error-msg" style="color:var(--bmas-danger); font-size:0.82rem; margin-bottom:12px; display:none;"></div>
-
-            <button class="accent" style="width:100%; padding:11px; font-size:0.92rem;" onclick="unlockConsoleGate()">
-                AUTHENTICATE &amp; ENTER CONTROL PLANE
-            </button>
-
-            <div style="margin-top:16px; font-size:0.73rem; color:#8b949e;">
-                Protected by Ed25519 / HMAC-SHA256 Node Signature &bull; Unauthorized access prohibited.
-            </div>
+            <button class="accent" style="width:100%; padding:11px; font-size:0.92rem;" onclick="unlockConsoleGate()">AUTHENTICATE &amp; ENTER CONTROL PLANE</button>
+            <div style="margin-top:16px; font-size:0.73rem; color:#8b949e;">Protected by Ed25519 / HMAC-SHA256 Node Signature &bull; Unauthorized access prohibited.</div>
         </div>
     </div>
 
-    <!-- Top Header with Hardware Topology, License Status, & 1-Click BMAS PDF Audit Export -->
     <div class="top-header">
         <div>
             <h1>BMAS HTML REPORT: PROJECT PROMETHEUS MoE CONTROLLER</h1>
-            <div class="subtitle">Cython-Compiled (.so) Zero-Copy /dev/shm &amp; Multi-Protocol (NVMe / NFS / S3 / API) Inference Gateway</div>
+            <div class="subtitle">Cython-Compiled (.so) Zero-Copy /dev/shm &amp; PKI/mTLS Multi-Protocol Inference Gateway</div>
         </div>
         <div class="header-badges">
             <span class="status-badge accent" id="hw-badge">PROBING HARDWARE...</span>
+            <span class="status-badge" id="pki-header-badge" onclick="openPkiModal()" style="cursor:pointer; background:#30363d;">PKI / TLS: STANDARD</span>
             <span class="status-badge" id="license-badge" onclick="openLicenseModal()" style="cursor:pointer;">CHECKING LICENSE...</span>
             <button class="small" style="background:var(--bmas-success); color:#fff;" onclick="exportBmasPdfReport()">Export BMAS PDF Report</button>
-            <button class="accent small" onclick="openGuideModal()">MoE &amp; Port/S3 Guide</button>
-            <button class="small" style="background:#30363d;" onclick="openLicenseModal()">License Key ($499)</button>
+            <button class="accent small" onclick="openPkiModal()">PKI / Endpoint Config (80%)</button>
+            <button class="small" style="background:#30363d;" onclick="openLicenseModal()">License ($499)</button>
             <button class="danger small" onclick="lockConsoleGate()">Lock Console</button>
         </div>
     </div>
 
-    <!-- Print-Only Executive STAR & Physical-Layer Audit Header (Appears automatically on PDF Export) -->
     <div class="print-audit-summary" id="print-audit-box">
         <strong>BMAS EXECUTIVE INFRASTRUCTURE &amp; MEMORY AUDIT REPORT (STAR VERIFICATION)</strong><br>
         <span id="print-audit-meta">Node ID: --- | Hardware: --- | /dev/shm Capacity: --- | Timestamp: ---</span>
     </div>
 
-    <!-- 3-Column Main Grid -->
     <div class="grid-3col">
-
-        <!-- COLUMN 1: Environment Status + Multi-Protocol Model Sourcing -->
         <div class="col-stack">
             <div class="panel">
                 <h2>
@@ -384,32 +213,29 @@
                             <button class="accent small" id="top-open-web-btn" onclick="openColibriWeb()">Open Colibrì Web (:8000)</button>
                         </div>
                     </div>
-                    <!-- SVG /dev/shm Gas Gauge -->
                     <div style="text-align: center;">
                         <svg viewBox="0 0 100 55" width="125" height="68">
                             <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#30363d" stroke-width="10" stroke-linecap="round"/>
                             <path id="gauge-fill" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--bmas-success)" stroke-width="10" stroke-dasharray="125.6" stroke-dashoffset="125.6" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"/>
                             <text id="gauge-text" x="50" y="46" fill="#c9d1d9" font-size="14" font-weight="bold" text-anchor="middle">0%</text>
                         </svg>
-                        <div id="ram-status" style="font-size: 0.76rem; color: #8b949e;">/dev/shm: 0B / 31.3GB</div>
+                        <div id="ram-status" style="font-size: 0.76rem; color: #8b949e;">/dev/shm: 0B / ---</div>
                     </div>
                 </div>
-
                 <div style="margin-top: 14px; border-top: 1px solid var(--bmas-border); padding-top: 10px;">
                     <label>Active Target List (lsof / pgrep)</label>
                     <table>
-                        <thead>
-                            <tr><th>PID</th><th>Command</th><th style="text-align:right;">Action</th></tr>
-                        </thead>
-                        <tbody id="process-list-body">
-                            <tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr>
-                        </tbody>
+                        <thead><tr><th>PID</th><th>Command</th><th style="text-align:right;">Action</th></tr></thead>
+                        <tbody id="process-list-body"><tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
             <div class="panel">
-                <h2>Model Sourcing &amp; Multi-Protocol Provisioning</h2>
+                <h2>
+                    <span>Model Sourcing &amp; Multi-Protocol Provisioning</span>
+                    <button class="accent small" onclick="openPkiModal()">Configure PKI / TLS</button>
+                </h2>
                 <div style="display:grid; grid-template-columns: 1fr 1.6fr; gap:8px; margin-bottom:10px;">
                     <div>
                         <label>Ingest Protocol</label>
@@ -417,131 +243,158 @@
                             <option value="local">Local NVMe / SSD / USB</option>
                             <option value="nfs">NFS / Lustre / BeeGFS Mount</option>
                             <option value="s3">AWS S3 / MinIO (s3://)</option>
-                            <option value="hf">HTTP / HuggingFace API</option>
+                            <option value="azure">Azure Blob Storage (HTTPS)</option>
+                            <option value="gcs">Google Cloud Storage (gs://)</option>
+                            <option value="hf">HTTPS / HuggingFace API</option>
                         </select>
                     </div>
                     <div>
-                        <label id="uri-label">Target Directory or Stream URI</label>
+                        <label id="uri-label">Target Directory or Stream URI (Blank by Default)</label>
                         <div style="display: flex; gap: 6px;">
-                            <input type="text" id="uri-path" value="/mnt/ssd/models">
+                            <input type="text" id="uri-path" value="" placeholder="Enter path (e.g., /mnt/ssd/models or s3://bucket/model)...">
                             <button class="accent" id="scan-or-pull-btn" onclick="handleSourceAction()">Scan</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Optional S3 Endpoint Bar (Only shown when S3 is selected) -->
-                <div id="s3-extra-bar" style="display:none; margin-bottom:10px;">
-                    <label>Optional Sovereign MinIO / Custom S3 Endpoint URL (Leave blank for AWS S3)</label>
-                    <input type="text" id="s3-endpoint-input" placeholder="e.g., https://minio.internal.bmas.lan:9000">
-                </div>
-
                 <div style="margin-top: 12px;">
-                    <label>Available Source Models (Auto-Verified Format)</label>
+                    <label>Available Source Models (Dynamic Discovery)</label>
                     <table>
-                        <thead>
-                            <tr><th>Model</th><th>Size</th><th>Compatibility</th><th style="text-align:right;">Execution</th></tr>
-                        </thead>
-                        <tbody id="source-models-body">
-                            <tr><td colspan="4" style="color:#8b949e;">Click Scan to inspect models.</td></tr>
-                        </tbody>
+                        <thead><tr><th>Model</th><th>Size</th><th>Compatibility</th><th style="text-align:right;">Execution</th></tr></thead>
+                        <tbody id="source-models-body"><tr><td colspan="4" style="color:#8b949e;">No source configured. Enter a Local/NFS path or configure a Cloud/PKI endpoint above.</td></tr></tbody>
                     </table>
                 </div>
-
                 <div style="margin-top: 16px; border-top: 1px solid var(--bmas-border); padding-top: 10px;">
                     <label>Resident RAM Disk (/dev/shm/colibri_models)</label>
                     <table>
-                        <thead>
-                            <tr><th>Model</th><th>Size</th><th style="text-align:right;">Action</th></tr>
-                        </thead>
-                        <tbody id="ram-models-body">
-                            <tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>
-                        </tbody>
+                        <thead><tr><th>Model</th><th>Size</th><th style="text-align:right;">Action</th></tr></thead>
+                        <tbody id="ram-models-body"><tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- COLUMN 2: Dual SVG I/O Memory Stream & Telemetry -->
         <div class="panel" style="display:flex; flex-direction:column; justify-content:space-between;">
             <div>
-                <h2>I/O Memory Stream &amp; Telemetry</h2>
-
-                <!-- Top Diagram: Physical RAM Mapping (Write Transfer) -->
+                <h2>I/O Memory Stream &amp; Hardware Telemetry</h2>
                 <div class="svg-box">
-                    <div class="svg-title">Physical RAM Mapping (NVMe / NFS / S3 &rarr; /dev/shm Zero-Copy Write)</div>
-                    <svg width="100%" height="155" viewBox="0 0 520 155" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="25" y="30" width="105" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
-                        <text x="77" y="70" fill="#c9d1d9" font-size="12" font-weight="bold" text-anchor="middle">NVMe / NFS / S3</text>
-                        <text x="77" y="90" fill="#8b949e" font-size="11" text-anchor="middle">MoE Source</text>
-
-                        <rect x="210" y="38" width="100" height="74" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
-                        <text x="260" y="80" fill="#d29922" font-size="15" font-weight="bold" text-anchor="middle">RYZEN</text>
-
-                        <rect x="395" y="25" width="100" height="100" rx="6" fill="#161b22" stroke="#2ea043" stroke-width="3"/>
-                        <text x="445" y="72" fill="#2ea043" font-size="13" font-weight="bold" text-anchor="middle">/dev/shm</text>
-                        <text x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">RAM Disk</text>
-
-                        <line x1="130" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
-                        <line x1="310" y1="75" x2="395" y2="75" stroke="#30363d" stroke-width="5"/>
-
+                    <div class="svg-title" id="svg-top-title">Physical RAM Mapping (MoE Source &rarr; /dev/shm Zero-Copy Write)</div>
+                    <svg width="100%" height="170" viewBox="0 0 540 170" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="18" y="22" width="130" height="96" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
+                        <text id="svg-source-title" x="83" y="58" fill="#c9d1d9" font-size="11" font-weight="bold" text-anchor="middle">LOCAL NVMe / SSD</text>
+                        <text id="svg-source-sub" x="83" y="76" fill="#58a6ff" font-size="10" text-anchor="middle">MoE Source Block</text>
+                        <text id="svg-source-pki" x="83" y="96" fill="#8b949e" font-size="9" text-anchor="middle">TLS/PKI: STANDARD</text>
+                        <rect x="205" y="22" width="130" height="96" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
+                        <text id="svg-cpu-vendor-1" x="270" y="56" fill="#d29922" font-size="13" font-weight="bold" text-anchor="middle">PROBING CPU</text>
+                        <text id="svg-cpu-cores-1" x="270" y="76" fill="#c9d1d9" font-size="10" text-anchor="middle">--- Cores | ---</text>
+                        <text id="svg-cpu-ram-1" x="270" y="96" fill="#8b949e" font-size="9" text-anchor="middle">DDR RAM: --- GB</text>
+                        <rect x="392" y="22" width="130" height="96" rx="6" fill="#161b22" stroke="#2ea043" stroke-width="3"/>
+                        <text x="457" y="56" fill="#2ea043" font-size="13" font-weight="bold" text-anchor="middle">/dev/shm</text>
+                        <text id="svg-shm-cap" x="457" y="76" fill="#c9d1d9" font-size="10" text-anchor="middle">0B / --- GB</text>
+                        <text x="457" y="96" fill="#8b949e" font-size="9" text-anchor="middle">Volatile RAM Disk</text>
+                        <line x1="148" y1="70" x2="205" y2="70" stroke="#30363d" stroke-width="5"/>
+                        <line x1="335" y1="70" x2="392" y2="70" stroke="#30363d" stroke-width="5"/>
                         <g id="ram-transfer-flow" style="display:none;">
-                            <line x1="130" y1="75" x2="210" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
-                            <line x1="310" y1="75" x2="395" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
+                            <line x1="148" y1="70" x2="205" y2="70" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
+                            <line x1="335" y1="70" x2="392" y2="70" stroke="#2ea043" stroke-width="5" class="data-stream"/>
                         </g>
-                        <text id="live-pid-text" x="260" y="142" fill="#58a6ff" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">IDLE - READY FOR ZERO-COPY STAGE</text>
+                        <text id="live-pid-text" x="270" y="150" fill="#58a6ff" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">IDLE - READY FOR ZERO-COPY STAGE</text>
                     </svg>
                 </div>
-
-                <!-- Bottom Diagram: Active Inference Stream -->
                 <div class="svg-box">
-                    <div class="svg-title">Active MoE Inference Stream (Bus Telemetry)</div>
-                    <svg width="100%" height="165" viewBox="0 0 520 165" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="25" y="30" width="105" height="90" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
-                        <text x="77" y="72" fill="#c9d1d9" font-size="13" font-weight="bold" text-anchor="middle">SHM / NVMe</text>
-                        <text x="77" y="92" fill="#8b949e" font-size="11" text-anchor="middle">MoE Weights</text>
-
-                        <rect x="210" y="38" width="100" height="74" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
-                        <text x="260" y="80" fill="#d29922" font-size="15" font-weight="bold" text-anchor="middle">RYZEN</text>
-
-                        <rect x="395" y="25" width="100" height="100" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
-                        <text x="445" y="72" fill="#58a6ff" font-size="12" font-weight="bold" text-anchor="middle">SYSTEM BUS</text>
-                        <text id="svg-port-label" x="445" y="92" fill="#8b949e" font-size="11" text-anchor="middle">Port 8000</text>
-
-                        <line x1="130" y1="75" x2="210" y2="75" stroke="#30363d" stroke-width="5"/>
-                        <line x1="310" y1="75" x2="395" y2="75" stroke="#30363d" stroke-width="5"/>
-
+                    <div class="svg-title">Active MoE Inference Stream (Processor &amp; System Bus Telemetry)</div>
+                    <svg width="100%" height="175" viewBox="0 0 540 175" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="18" y="22" width="130" height="96" rx="8" fill="#161b22" stroke="#30363d" stroke-width="3"/>
+                        <text x="83" y="58" fill="#c9d1d9" font-size="12" font-weight="bold" text-anchor="middle">SHM / NVMe</text>
+                        <text x="83" y="76" fill="#2ea043" font-size="10" text-anchor="middle">Mapped MoE Weights</text>
+                        <text id="svg-ram-avail" x="83" y="96" fill="#8b949e" font-size="9" text-anchor="middle">Avail RAM: --- GB</text>
+                        <rect x="205" y="22" width="130" height="96" rx="6" fill="#161b22" stroke="#d29922" stroke-width="3"/>
+                        <text id="svg-cpu-vendor-2" x="270" y="56" fill="#d29922" font-size="13" font-weight="bold" text-anchor="middle">PROBING CPU</text>
+                        <text id="svg-gpu-label" x="270" y="76" fill="#58a6ff" font-size="9.5" text-anchor="middle">GPU: ---</text>
+                        <text id="svg-tier-mode" x="270" y="96" fill="#8b949e" font-size="9" text-anchor="middle">MODE: ---</text>
+                        <rect x="392" y="22" width="130" height="96" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+                        <text x="457" y="58" fill="#58a6ff" font-size="12" font-weight="bold" text-anchor="middle">SYSTEM BUS</text>
+                        <text id="svg-port-label" x="457" y="78" fill="#c9d1d9" font-size="10" text-anchor="middle">TCP Port :8000</text>
+                        <text x="457" y="96" fill="#8b949e" font-size="9" text-anchor="middle">Inference Gateway</text>
+                        <line x1="148" y1="70" x2="205" y2="70" stroke="#30363d" stroke-width="5"/>
+                        <line x1="335" y1="70" x2="392" y2="70" stroke="#30363d" stroke-width="5"/>
                         <g id="inference-stream-flow" style="display:none;">
-                            <line x1="130" y1="75" x2="210" y2="75" stroke="#2ea043" stroke-width="5" class="data-stream"/>
-                            <line x1="310" y1="75" x2="395" y2="75" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
+                            <line x1="148" y1="70" x2="205" y2="70" stroke="#2ea043" stroke-width="5" class="data-stream"/>
+                            <line x1="335" y1="70" x2="392" y2="70" stroke="#58a6ff" stroke-width="5" class="data-stream"/>
                         </g>
-                        <text id="disk-metrics-text" x="260" y="148" fill="#2ea043" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">READ: 0.0 MB/s | WRITE: 0.0 MB/s</text>
+                        <text id="disk-metrics-text" x="270" y="152" fill="#2ea043" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">READ: 0.0 MB/s | WRITE: 0.0 MB/s</text>
                     </svg>
                 </div>
             </div>
-
-            <div style="background:#05070a; border:1px solid #21262d; border-radius:6px; padding:10px; font-size:0.77rem; color:#8b949e;">
-                <strong style="color:var(--bmas-accent);">BMAS Multi-Protocol &amp; Ring-Buffer Engine:</strong> Supports custom controller/engine ports, mounted NFS/Lustre shares, AWS S3 / MinIO direct-to-RAM streaming, and 64KB ring-log auto-trimming.
+            <div id="hw-detail-bar" style="background:#05070a; border:1px solid #21262d; border-radius:6px; padding:10px; font-size:0.77rem; color:#8b949e;">
+                <strong style="color:var(--bmas-accent);">Hardware Profile:</strong> Probing host CPU architecture (ARM / Intel / AMD), DDR RAM, and GPU topology...
             </div>
         </div>
 
-        <!-- COLUMN 3: System & Engine Logs (Ring-Buffered DOM) -->
         <div class="panel">
             <h2>System &amp; Engine Logs</h2>
             <label>Dashboard Activity</label>
             <div id="console-output" class="console-log"></div>
-
             <div style="margin-top: 14px;">
                 <label>Colibrì Engine Stream (/tmp/colibri.log - Ring Capped)</label>
                 <div id="engine-log-output" class="console-log engine-stream">Waiting for engine telemetry...</div>
             </div>
         </div>
-
     </div>
 
-    <!-- Modal 1: Commercial License Gate ($499 / $180 Yr) -->
+    <!-- Modal 1: STANDARDIZED 80% VIEWPORT PKI / PEM & ENDPOINT CONFIGURATION MODAL -->
+    <div class="modal-overlay" id="pki-modal">
+        <div class="modal-card-80">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--bmas-border); padding-bottom:12px; margin-bottom:16px;">
+                <div>
+                    <h2 style="margin:0; color:#fff; font-size:1.25rem;">BMAS Secure Endpoint, PKI Certificate &amp; TLS Trust Configuration</h2>
+                    <div style="font-size:0.8rem; color:var(--bmas-accent); margin-top:4px;">80% Viewport Enterprise Configuration Panel &bull; Stored in Volatile <code>/dev/shm/.bmas_secure/</code> (chmod 600)</div>
+                </div>
+                <button class="danger small" onclick="closePkiModal()">Close [X]</button>
+            </div>
+            <div style="background:#0d1117; border-left:4px solid var(--bmas-accent); padding:12px 16px; border-radius:4px; margin-bottom:16px; font-size:0.82rem; line-height:1.5;">
+                <strong style="color:#fff;">How Enterprise &amp; DoD Endpoint Connections Work:</strong><br>
+                Select your target connection types below and paste your PEM-encoded Root/Intermediate CA bundle (or DoD/DISA server certificate). Prometheus automatically writes the certificates to volatile RAM (<code>/dev/shm/.bmas_secure/</code>) and injects <code>AWS_CA_BUNDLE</code>, <code>REQUESTS_CA_BUNDLE</code>, and <code>SSL_CERT_FILE</code> into all background S3, Azure, GCS, and HTTPS MoE streaming subprocesses—preventing SSL handshake errors without persisting keys to disk.
+            </div>
+            <label>1. Select Connection &amp; Certificate Trust Context (Check all that apply)</label>
+            <div class="checkbox-grid">
+                <label class="checkbox-item"><input type="checkbox" class="pki-type-cb" value="AWS_S3_MINIO"> AWS S3 / Sovereign MinIO (AWS_CA_BUNDLE)</label>
+                <label class="checkbox-item"><input type="checkbox" class="pki-type-cb" value="AZURE_BLOB"> Azure Blob Storage (SAS / Custom CA)</label>
+                <label class="checkbox-item"><input type="checkbox" class="pki-type-cb" value="GCS_BUCKET"> Google Cloud Storage (GCS / TLS)</label>
+                <label class="checkbox-item"><input type="checkbox" class="pki-type-cb" value="DOD_MTLS_PKI"> DoD / Enterprise PKI (Server CA / mTLS)</label>
+                <label class="checkbox-item"><input type="checkbox" class="pki-type-cb" value="NFS_KERBEROS"> Secure NFSv4 / Lustre / Kerberos Mount</label>
+                <label class="checkbox-item"><input type="checkbox" class="pki-type-cb" value="HTTPS_TLS_API"> Private HTTPS / TLS 1.3 Model API</label>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label>2. Optional Custom S3 / Sovereign MinIO / Private API Endpoint URL</label>
+                <input type="text" id="pki-endpoint-url" placeholder="e.g., https://minio.internal.bmas.lan:9000 (Leave blank for standard AWS/Public endpoints)">
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div>
+                    <label>3. Server / Root CA Certificate Bundle (PEM Format: <code>-----BEGIN CERTIFICATE-----</code>)</label>
+                    <textarea id="pki-ca-pem" rows="8" placeholder="-----BEGIN CERTIFICATE-----&#10;Paste your AWS/Azure/GCS/DoD Root or Server CA PEM here...&#10;-----END CERTIFICATE-----"></textarea>
+                </div>
+                <div>
+                    <label>4. Optional Client Private Key for Mutual TLS / mTLS (<code>-----BEGIN PRIVATE KEY-----</code>)</label>
+                    <textarea id="pki-client-key" rows="8" placeholder="-----BEGIN PRIVATE KEY-----&#10;Optional: Paste client private key for strict mTLS DoD enclaves...&#10;-----END PRIVATE KEY-----"></textarea>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--bmas-border); padding-top:14px;">
+                <span id="pki-modal-status" style="font-size:0.82rem; color:#8b949e;">Certificates are held strictly in volatile RAM and purged on reboot.</span>
+                <div style="display:flex; gap:10px;">
+                    <button style="background:#30363d;" onclick="closePkiModal()">Cancel</button>
+                    <button class="accent" onclick="savePkiConfig()">Save &amp; Inject PKI / TLS Trust</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: STANDARDIZED 80% VIEWPORT COMMERCIAL LICENSE MODAL -->
     <div class="modal-overlay" id="license-modal">
-        <div class="modal-card">
-            <h2 style="margin-top:0; color:#fff;">BMAS Project Prometheus — Commercial Node License</h2>
+        <div class="modal-card-80" style="max-width: 820px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--bmas-border); padding-bottom:12px; margin-bottom:16px;">
+                <h2 style="margin:0; color:#fff;">BMAS Project Prometheus — Commercial Node License</h2>
+                <button class="danger small" onclick="closeLicenseModal()">Close [X]</button>
+            </div>
             <p style="font-size:0.88rem; color:#c9d1d9;">
                 This utility is protected by a hardware-bound cryptographic signature compiled inside <code>prometheus_core.so</code>.
                 Commercial deployment is licensed at <strong>$499 Perpetual Base / $180 Annual Renewal</strong>.
@@ -561,187 +414,116 @@
         </div>
     </div>
 
-    <!-- Modal 2: MoE Conversion, Custom Ports, & NFS/S3 Streaming Guide -->
-    <div class="modal-overlay" id="guide-modal">
-        <div class="modal-card">
-            <h2 style="margin-top:0; color:#fff;">BMAS Project Prometheus — Ports, NFS/S3 Streaming &amp; MoE Guide</h2>
-            <ul style="font-size:0.81rem; line-height:1.5; color:#c9d1d9;">
-                <li><strong>Custom Controller &amp; Engine Ports (Doesn't have to be :5000 or :8000):</strong> Launch on any custom ports via CLI flags, or change the Engine Port live in the top-left panel:</li>
-            </ul>
-            <div class="code-block">./launch_prometheus.sh --port 7070 --engine-port 9000</div>
-            <ul style="font-size:0.81rem; line-height:1.5; color:#c9d1d9;">
-                <li><strong>Streaming from NFS, S3 Cloud, or HuggingFace API directly into <code>/dev/shm</code>:</strong>
-                    <br>&bull; <strong>NFS / Lustre / BeeGFS:</strong> Select <em>NFS Mount</em> and scan your mounted share (e.g., <code>/mnt/nfs/models</code>).
-                    <br>&bull; <strong>AWS S3 / MinIO:</strong> Select <em>AWS S3 / MinIO</em>, enter <code>s3://your-bucket/qwen36_i4_gs64</code>, and click <strong>Stream to RAM</strong> (streams via <code>s5cmd</code> or <code>aws s3 sync</code> directly into <code>/dev/shm/colibri_models/</code>).
-                    <br>&bull; <strong>HTTP / HuggingFace API:</strong> Select <em>HTTP / HuggingFace API</em>, enter repo ID or URL, and click <strong>Stream to RAM</strong>.
-                </li>
-                <li><strong>Converting Raw HuggingFace Models (<code>NEEDS QUANT CONVERT</code>) to Colibrì INT4:</strong></li>
-            </ul>
-            <div class="code-block">python3 /mnt/ssd/convert_weights.py \
-  --input /mnt/ssd/models/Qwen3.6-35B-Archive \
-  --output /mnt/ssd/models/qwen36_i4_gs64 \
-  --quant int4_gs64</div>
-            <div style="text-align:right;">
-                <button class="accent" onclick="closeGuideModal()">Got It</button>
-            </div>
-        </div>
-    </div>
-
     <div class="nda-footer">
-        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL &amp; PROPRIETARY</strong> | Project Prometheus v1.1 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC. All Rights Reserved.
+        <strong>BARE METAL APPLIED SCIENCE LLC — CONFIDENTIAL &amp; PROPRIETARY</strong> | Project Prometheus v1.2 (Cython .so Protected) | Copyright &copy; 2026 Bare Metal Applied Science LLC. All Rights Reserved.
     </div>
 
     <script>
-        let isTransferring = false;
-        let lastBytesRead = 0;
-        let lastBytesWritten = 0;
-        let lastMetricTime = Date.now();
-        let currentLicenseState = false;
-        let activeEnginePort = 8000;
-        let latestStatusSnapshot = {};
-        const MAX_CONSOLE_LINES = 120;
-        const consoleLines = [];
+        let isTransferring = false, lastBytesRead = 0, lastBytesWritten = 0, lastMetricTime = Date.now();
+        let currentLicenseState = false, activeEnginePort = 8000, latestStatusSnapshot = {}, savedEndpointUrl = '';
+        const MAX_CONSOLE_LINES = 120, consoleLines = [];
 
-        function openColibriWeb() {
-            window.open(`http://${window.location.hostname}:${activeEnginePort}`, '_blank');
-        }
-
+        function openColibriWeb() { window.open(`http://${window.location.hostname}:${activeEnginePort}`, '_blank'); }
         function exportBmasPdfReport() {
-            const hw = latestStatusSnapshot.hardware || {};
-            const lic = latestStatusSnapshot.license || {};
-            const ts = new Date().toISOString();
+            const hw = latestStatusSnapshot.hardware || {}, lic = latestStatusSnapshot.license || {};
             document.getElementById('print-audit-meta').innerText =
-                `Node ID: ${lic.node_id || '---'} | License: ${lic.tier || '---'} | Hardware: ${hw.cpu || '---'} + ${hw.gpu || '---'} (${hw.ram_gb || 0}GB RAM) | /dev/shm: ${latestStatusSnapshot.shm_usage || '0B'} / ${latestStatusSnapshot.shm_total || '---'} | Engine Port: :${activeEnginePort} | Audit Time: ${ts}`;
+                `Node ID: ${lic.node_id || '---'} | License: ${lic.tier || '---'} | CPU: ${hw.cpu || '---'} (${hw.cpu_cores || 0}c ${hw.arch || ''}) | GPU: ${hw.gpu || '---'} | RAM: ${hw.ram_gb || 0}GB | /dev/shm: ${latestStatusSnapshot.shm_usage || '0B'} / ${latestStatusSnapshot.shm_total || '---'} | Engine Port: :${activeEnginePort} | Audit Time: ${new Date().toISOString()}`;
             logToConsole('[REPORT] Generating BMAS Executive Landscape PDF Audit Report...');
             window.print();
+        }
+        function openPkiModal() { document.getElementById('pki-modal').style.display = 'flex'; }
+        function closePkiModal() { document.getElementById('pki-modal').style.display = 'none'; }
+        function openLicenseModal() { document.getElementById('license-modal').style.display = 'flex'; }
+        function closeLicenseModal() { document.getElementById('license-modal').style.display = 'none'; }
+
+        function savePkiConfig() {
+            const certTypes = Array.from(document.querySelectorAll('.pki-type-cb:checked')).map(cb => cb.value);
+            const caPem = document.getElementById('pki-ca-pem').value.trim();
+            const clientKey = document.getElementById('pki-client-key').value.trim();
+            const endpointUrl = document.getElementById('pki-endpoint-url').value.trim();
+            fetch('/api/pki/save', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ca_pem: caPem, client_key: clientKey, cert_types: certTypes, endpoint_url: endpointUrl })
+            }).then(r => r.json()).then(data => {
+                if (data.error) { logToConsole(`[PKI ERROR] ${data.error}`); alert(data.error); }
+                else { savedEndpointUrl = endpointUrl; logToConsole(`[SECURITY] ${data.status}`); closePkiModal(); updateStatus(); }
+            });
         }
 
         function updateEnginePort() {
             const newPort = parseInt(document.getElementById('engine-port-input').value, 10);
-            if (!newPort || newPort < 1024 || newPort > 65535) {
-                alert('Engine port must be between 1024 and 65535.');
-                return;
-            }
+            if (!newPort || newPort < 1024 || newPort > 65535) { alert('Engine port must be between 1024 and 65535.'); return; }
             fetch('/api/config/ports', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ engine_port: newPort })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) {
-                    logToConsole(`[PORT ERROR] ${data.error}`);
-                } else {
+            }).then(r => r.json()).then(data => {
+                if (data.error) logToConsole(`[PORT ERROR] ${data.error}`);
+                else {
                     activeEnginePort = data.engine_port;
                     document.getElementById('top-open-web-btn').innerText = `Open Colibrì Web (:${activeEnginePort})`;
-                    document.getElementById('svg-port-label').textContent = `Port ${activeEnginePort}`;
-                    logToConsole(`[CONFIG] ${data.status}`);
-                    updateStatus();
+                    document.getElementById('svg-port-label').textContent = `TCP Port :${activeEnginePort}`;
+                    logToConsole(`[CONFIG] ${data.status}`); updateStatus();
                 }
             });
         }
 
         function onProtocolChange() {
             const proto = document.getElementById('source-protocol').value;
-            const uriInput = document.getElementById('uri-path');
-            const btn = document.getElementById('scan-or-pull-btn');
-            const s3Bar = document.getElementById('s3-extra-bar');
-
-            if (proto === 'local') {
-                uriInput.value = '/mnt/ssd/models';
-                btn.innerText = 'Scan';
-                s3Bar.style.display = 'none';
-            } else if (proto === 'nfs') {
-                uriInput.value = '/mnt/nfs/models';
-                btn.innerText = 'Scan NFS';
-                s3Bar.style.display = 'none';
-            } else if (proto === 's3') {
-                uriInput.value = 's3://bmas-moe-vault/qwen36_i4_gs64';
-                btn.innerText = 'Stream S3 -> RAM';
-                s3Bar.style.display = 'block';
-            } else if (proto === 'hf') {
-                uriInput.value = 'mastouri/GLM-5.2-colibri-int4-g64-with-int8-mtp';
-                btn.innerText = 'Stream API -> RAM';
-                s3Bar.style.display = 'none';
-            }
+            const uriInput = document.getElementById('uri-path'), btn = document.getElementById('scan-or-pull-btn'), svgSrc = document.getElementById('svg-source-title');
+            uriInput.value = '';
+            const map = {
+                local: ['Enter local path (e.g., /mnt/ssd/models)', 'Scan', 'LOCAL NVMe / SSD'],
+                nfs: ['Enter mounted NFS/Lustre path (e.g., /mnt/nfs/models)', 'Scan NFS', 'NFS / LUSTRE SHARE'],
+                s3: ['Enter S3 URI (e.g., s3://bucket/model_folder)', 'Stream S3 -> RAM', 'AWS S3 / MINIO'],
+                azure: ['Enter Azure Blob HTTPS SAS URL', 'Stream Azure -> RAM', 'AZURE BLOB'],
+                gcs: ['Enter GCS URI (e.g., gs://bucket/model_folder)', 'Stream GCS -> RAM', 'GOOGLE CLOUD (GCS)'],
+                hf: ['Enter HuggingFace Repo ID or HTTPS Artifact URL', 'Stream API -> RAM', 'HTTPS / HF API']
+            };
+            if (map[proto]) { uriInput.placeholder = map[proto][0]; btn.innerText = map[proto][1]; svgSrc.textContent = map[proto][2]; }
         }
 
         function handleSourceAction() {
-            const proto = document.getElementById('source-protocol').value;
-            const uri = document.getElementById('uri-path').value.trim();
-            if (proto === 'local' || proto === 'nfs') {
-                scanSource();
-            } else {
-                const s3Ep = document.getElementById('s3-endpoint-input').value.trim();
+            const proto = document.getElementById('source-protocol').value, uri = document.getElementById('uri-path').value.trim();
+            if (!uri) { logToConsole('[INPUT] Please enter a target directory or stream URI first.'); return; }
+            if (proto === 'local' || proto === 'nfs') { scanSource(); }
+            else {
                 logToConsole(`[STREAM] Initiating direct ${proto.toUpperCase()} stream from ${uri} -> /dev/shm...`);
                 fetch('/api/load', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ source_path: uri, protocol: proto, s3_endpoint: s3Ep })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.error) logToConsole(`[ERROR] ${data.error}`);
-                    else logToConsole(`[SYSTEM] ${data.status}`);
-                });
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source_path: uri, protocol: proto, s3_endpoint: savedEndpointUrl })
+                }).then(r => r.json()).then(data => { logToConsole(data.error ? `[ERROR] ${data.error}` : `[SYSTEM] ${data.status}`); });
             }
         }
 
         function checkSessionAuth() {
-            if (sessionStorage.getItem('bmas_prom_auth') === 'UNLOCKED' && currentLicenseState) {
-                document.getElementById('auth-gate').style.display = 'none';
-            } else {
-                document.getElementById('auth-gate').style.display = 'flex';
-            }
+            document.getElementById('auth-gate').style.display = (sessionStorage.getItem('bmas_prom_auth') === 'UNLOCKED' && currentLicenseState) ? 'none' : 'flex';
         }
-
         function lockConsoleGate() {
             sessionStorage.removeItem('bmas_prom_auth');
             document.getElementById('gate-passcode').value = '';
             document.getElementById('auth-gate').style.display = 'flex';
             logToConsole('[SECURITY] Operator locked the Prometheus Control Plane.');
         }
-
         function unlockConsoleGate() {
             const pass = document.getElementById('gate-passcode').value.trim();
             const keyInput = document.getElementById('gate-license-input').value.trim();
             const errEl = document.getElementById('gate-error-msg');
             errEl.style.display = 'none';
-
             if (pass !== 'bmas2026' && pass !== 'prometheus' && !pass.startsWith('PROM-')) {
-                errEl.textContent = 'Invalid BMAS Operator Passcode (Default: bmas2026)';
-                errEl.style.display = 'block';
-                return;
+                errEl.textContent = 'Invalid BMAS Operator Passcode (Default: bmas2026)'; errEl.style.display = 'block'; return;
             }
-
             if (!currentLicenseState) {
                 const candidateKey = keyInput || (pass.startsWith('PROM-') ? pass : '');
-                if (!candidateKey.startsWith('PROM-')) {
-                    errEl.textContent = 'Node is Unlicensed. Paste your $499 PROM-... key to activate.';
-                    errEl.style.display = 'block';
-                    return;
-                }
+                if (!candidateKey.startsWith('PROM-')) { errEl.textContent = 'Node is Unlicensed. Paste your $499 PROM-... key to activate.'; errEl.style.display = 'block'; return; }
                 fetch('/api/license/activate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ license_key: candidateKey })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.error) {
-                        errEl.textContent = data.error;
-                        errEl.style.display = 'block';
-                    } else {
-                        currentLicenseState = true;
-                        sessionStorage.setItem('bmas_prom_auth', 'UNLOCKED');
-                        document.getElementById('auth-gate').style.display = 'none';
-                        logToConsole(`[SECURITY] Node activated & authenticated: ${data.status}`);
-                        updateStatus();
-                    }
+                }).then(r => r.json()).then(data => {
+                    if (data.error) { errEl.textContent = data.error; errEl.style.display = 'block'; }
+                    else { currentLicenseState = true; sessionStorage.setItem('bmas_prom_auth', 'UNLOCKED'); document.getElementById('auth-gate').style.display = 'none'; logToConsole(`[SECURITY] Node activated: ${data.status}`); updateStatus(); }
                 });
                 return;
             }
-
             sessionStorage.setItem('bmas_prom_auth', 'UNLOCKED');
             document.getElementById('auth-gate').style.display = 'none';
             logToConsole('[SECURITY] Operator authenticated into Prometheus Control Plane.');
@@ -749,302 +531,165 @@
 
         function logToConsole(message) {
             const consoleOut = document.getElementById('console-output');
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            consoleLines.push(`[${time}] ${message}`);
-            if (consoleLines.length > MAX_CONSOLE_LINES) {
-                consoleLines.shift();
-            }
+            consoleLines.push(`[${new Date().toLocaleTimeString('en-US', { hour12: false })}] ${message}`);
+            if (consoleLines.length > MAX_CONSOLE_LINES) consoleLines.shift();
             consoleOut.textContent = consoleLines.join('\n');
             consoleOut.scrollTop = consoleOut.scrollHeight;
         }
 
-        function openLicenseModal() { document.getElementById('license-modal').style.display = 'flex'; }
-        function closeLicenseModal() { document.getElementById('license-modal').style.display = 'none'; }
-        function openGuideModal() { document.getElementById('guide-modal').style.display = 'flex'; }
-        function closeGuideModal() { document.getElementById('guide-modal').style.display = 'none'; }
-
         function activateLicenseKey() {
             const key = document.getElementById('modal-license-key').value.trim();
             fetch('/api/license/activate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ license_key: key })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) {
-                    logToConsole(`[LICENSE ERROR] ${data.error}`);
-                    alert(data.error);
-                } else {
-                    logToConsole(`[LICENSE] ${data.status}`);
-                    closeLicenseModal();
-                    updateStatus();
-                }
+            }).then(r => r.json()).then(data => {
+                if (data.error) { logToConsole(`[LICENSE ERROR] ${data.error}`); alert(data.error); }
+                else { logToConsole(`[LICENSE] ${data.status}`); closeLicenseModal(); updateStatus(); }
             });
         }
 
         function updateStatus() {
-            fetch('/api/status')
-                .then(r => r.json())
-                .then(data => {
-                    latestStatusSnapshot = data;
-                    if (data.engine_port) {
-                        activeEnginePort = data.engine_port;
-                        document.getElementById('engine-port-input').value = activeEnginePort;
-                        document.getElementById('top-open-web-btn').innerText = `Open Colibrì Web (:${activeEnginePort})`;
-                        document.getElementById('svg-port-label').textContent = `Port ${activeEnginePort}`;
-                    }
-                    if (data.hardware) {
-                        document.getElementById('hw-badge').innerText =
-                            `${data.hardware.gpu} (${data.hardware.vram_gb}GB VRAM) | ${data.hardware.ram_gb}GB RAM`;
-                    }
-                    if (data.license) {
-                        const licBadge = document.getElementById('license-badge');
-                        document.getElementById('modal-node-id').value = data.license.node_id;
-                        document.getElementById('gate-node-id').value = data.license.node_id;
-                        currentLicenseState = Boolean(data.license.licensed);
-
-                        const gateLicStatus = document.getElementById('gate-license-status');
-                        const gateKeyBox = document.getElementById('gate-key-box');
-
-                        if (data.license.licensed) {
-                            licBadge.className = "status-badge";
-                            licBadge.innerText = `LICENSED: ${data.license.node_id} (${data.license.days_remaining}d)`;
-                            gateLicStatus.value = `ACTIVE: ${data.license.tier} (${data.license.days_remaining} DAYS REMAINING)`;
-                            gateLicStatus.style.color = "var(--bmas-success)";
-                            gateKeyBox.style.display = "none";
-                        } else {
-                            licBadge.className = "status-badge danger";
-                            licBadge.innerText = `UNLICENSED NODE — CLICK TO ACTIVATE`;
-                            gateLicStatus.value = `UNLICENSED NODE — $499 COMMERCIAL KEY REQUIRED`;
-                            gateLicStatus.style.color = "var(--bmas-danger)";
-                            gateKeyBox.style.display = "block";
-                            document.getElementById('auth-gate').style.display = 'flex';
-                        }
-                        checkSessionAuth();
-                    }
-
-                    const engineBadge = document.getElementById('engine-status');
-                    engineBadge.innerText = data.port_status;
-                    engineBadge.className = data.is_running ? "status-badge" : "status-badge offline";
-
-                    document.getElementById('inference-stream-flow').style.display = data.is_running ? 'block' : 'none';
-
-                    const zombieBadge = document.getElementById('zombie-status');
-                    zombieBadge.innerText = `${data.zombies} DETECTED`;
-                    zombieBadge.className = data.zombies === 0 ? "status-badge" : "status-badge offline";
-
-                    const circumference = 125.6;
-                    const offset = circumference - (circumference * Math.min(100, data.shm_percent) / 100);
-                    const gaugeFill = document.getElementById('gauge-fill');
-                    gaugeFill.style.strokeDashoffset = offset;
-                    document.getElementById('gauge-text').innerText = `${data.shm_percent}%`;
-                    document.getElementById('ram-status').innerText = `/dev/shm: ${data.shm_usage} / ${data.shm_total}`;
-
-                    const procBody = document.getElementById('process-list-body');
-                    if (!data.processes || data.processes.length === 0) {
-                        procBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr>';
+            fetch('/api/status').then(r => r.json()).then(data => {
+                latestStatusSnapshot = data;
+                if (data.engine_port) {
+                    activeEnginePort = data.engine_port;
+                    document.getElementById('engine-port-input').value = activeEnginePort;
+                    document.getElementById('top-open-web-btn').innerText = `Open Colibrì Web (:${activeEnginePort})`;
+                    document.getElementById('svg-port-label').textContent = `TCP Port :${activeEnginePort}`;
+                }
+                if (data.hardware) {
+                    const hw = data.hardware;
+                    document.getElementById('hw-badge').innerText = `${hw.cpu_short} (${hw.cpu_cores}c) | ${hw.gpu} | ${hw.ram_gb}GB RAM`;
+                    document.getElementById('svg-cpu-vendor-1').textContent = hw.cpu_short;
+                    document.getElementById('svg-cpu-vendor-2').textContent = hw.cpu_short;
+                    document.getElementById('svg-cpu-cores-1').textContent = `${hw.cpu_cores} Cores | ${hw.arch}`;
+                    document.getElementById('svg-cpu-ram-1').textContent = `DDR RAM: ${hw.ram_gb} GB`;
+                    document.getElementById('svg-ram-avail').textContent = `Avail RAM: ${hw.ram_avail_gb} GB`;
+                    document.getElementById('svg-gpu-label').textContent = hw.vram_gb > 0 ? `${hw.gpu.substring(0,20)} (${hw.vram_gb}G)` : 'Unified / CPU Only';
+                    document.getElementById('svg-tier-mode').textContent = hw.tier_mode;
+                    document.getElementById('hw-detail-bar').innerHTML =
+                        `<strong style="color:var(--bmas-accent);">Live Hardware Profile:</strong> ${hw.cpu} (${hw.cpu_cores} Cores, ${hw.arch}) &bull; <strong>System Memory:</strong> ${hw.ram_gb} GB Total (${hw.ram_avail_gb} GB Free) &bull; <strong>Accelerator:</strong> ${hw.gpu}`;
+                }
+                if (data.pki) {
+                    const pkiBadge = document.getElementById('pki-header-badge'), svgPki = document.getElementById('svg-source-pki');
+                    if (data.pki.has_ca || data.pki.has_key) {
+                        const mode = data.pki.has_key ? 'mTLS + CA ACTIVE' : 'CUSTOM CA ACTIVE';
+                        pkiBadge.style.background = 'var(--bmas-success)'; pkiBadge.innerText = `PKI / TLS: ${mode}`;
+                        svgPki.textContent = `TLS/PKI: ${mode}`; svgPki.setAttribute('fill', '#2ea043');
                     } else {
-                        procBody.innerHTML = data.processes.map(proc => `
-                            <tr>
-                                <td style="color:var(--bmas-danger); font-family:monospace;">${proc.pid}</td>
-                                <td style="font-family:monospace; font-size:0.76rem;">${proc.cmd.substring(0, 48)}</td>
-                                <td style="text-align:right;">
-                                    <button class="danger small" onclick="targetKill('${proc.pid}')">Kill</button>
-                                </td>
-                            </tr>
-                        `).join('');
+                        pkiBadge.style.background = '#30363d'; pkiBadge.innerText = 'PKI / TLS: STANDARD';
+                        svgPki.textContent = 'TLS/PKI: STANDARD'; svgPki.setAttribute('fill', '#8b949e');
                     }
-
-                    const ramBody = document.getElementById('ram-models-body');
-                    if (!data.ram_models || data.ram_models.length === 0) {
-                        ramBody.innerHTML = '<tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>';
+                    if (data.pki.endpoint_url) savedEndpointUrl = data.pki.endpoint_url;
+                }
+                if (data.license) {
+                    const licBadge = document.getElementById('license-badge');
+                    document.getElementById('modal-node-id').value = data.license.node_id;
+                    document.getElementById('gate-node-id').value = data.license.node_id;
+                    currentLicenseState = Boolean(data.license.licensed);
+                    const gateLicStatus = document.getElementById('gate-license-status'), gateKeyBox = document.getElementById('gate-key-box');
+                    if (data.license.licensed) {
+                        licBadge.className = "status-badge"; licBadge.innerText = `LICENSED: ${data.license.node_id} (${data.license.days_remaining}d)`;
+                        gateLicStatus.value = `ACTIVE: ${data.license.tier} (${data.license.days_remaining} DAYS REMAINING)`;
+                        gateLicStatus.style.color = "var(--bmas-success)"; gateKeyBox.style.display = "none";
                     } else {
-                        ramBody.innerHTML = data.ram_models.map(m => `
-                            <tr>
-                                <td style="color:var(--bmas-success); font-weight:bold;">${m.name}</td>
-                                <td>${m.size}</td>
-                                <td style="text-align:right; white-space:nowrap;">
-                                    <button class="accent small" onclick="launchEngine('${m.name}')" style="margin-right:6px;">Boot Engine</button>
-                                    <button class="small" style="background-color:var(--bmas-success); color:#fff;" onclick="openColibriWeb()">Open Colibrì Web ↗</button>
-                                </td>
-                            </tr>
-                        `).join('');
+                        licBadge.className = "status-badge danger"; licBadge.innerText = `UNLICENSED NODE — CLICK TO ACTIVATE`;
+                        gateLicStatus.value = `UNLICENSED NODE — $499 COMMERCIAL KEY REQUIRED`;
+                        gateLicStatus.style.color = "var(--bmas-danger)"; gateKeyBox.style.display = "block";
+                        document.getElementById('auth-gate').style.display = 'flex';
                     }
-                })
-                .catch(() => {});
+                    checkSessionAuth();
+                }
+                const engineBadge = document.getElementById('engine-status');
+                engineBadge.innerText = data.port_status; engineBadge.className = data.is_running ? "status-badge" : "status-badge offline";
+                document.getElementById('inference-stream-flow').style.display = data.is_running ? 'block' : 'none';
+                const zombieBadge = document.getElementById('zombie-status');
+                zombieBadge.innerText = `${data.zombies} DETECTED`; zombieBadge.className = data.zombies === 0 ? "status-badge" : "status-badge offline";
+                const circumference = 125.6;
+                document.getElementById('gauge-fill').style.strokeDashoffset = circumference - (circumference * Math.min(100, data.shm_percent) / 100);
+                document.getElementById('gauge-text').innerText = `${data.shm_percent}%`;
+                document.getElementById('ram-status').innerText = `/dev/shm: ${data.shm_usage} / ${data.shm_total}`;
+                document.getElementById('svg-shm-cap').textContent = `${data.shm_usage} / ${data.shm_total}`;
+                document.getElementById('process-list-body').innerHTML = (!data.processes || data.processes.length === 0)
+                    ? '<tr><td colspan="3" style="color:#8b949e;">No active processes.</td></tr>'
+                    : data.processes.map(p => `<tr><td style="color:var(--bmas-danger); font-family:monospace;">${p.pid}</td><td style="font-family:monospace; font-size:0.76rem;">${p.cmd.substring(0, 48)}</td><td style="text-align:right;"><button class="danger small" onclick="targetKill('${p.pid}')">Kill</button></td></tr>`).join('');
+                document.getElementById('ram-models-body').innerHTML = (!data.ram_models || data.ram_models.length === 0)
+                    ? '<tr><td colspan="3" style="color:#8b949e;">RAM Disk is empty.</td></tr>'
+                    : data.ram_models.map(m => `<tr><td style="color:var(--bmas-success); font-weight:bold;">${m.name}</td><td>${m.size}</td><td style="text-align:right; white-space:nowrap;"><button class="accent small" onclick="launchEngine('${m.name}')" style="margin-right:6px;">Boot Engine</button><button class="small" style="background-color:var(--bmas-success); color:#fff;" onclick="openColibriWeb()">Open Colibrì Web ↗</button></td></tr>`).join('');
+            }).catch(() => {});
         }
 
         function scanSource() {
             const path = document.getElementById('uri-path').value.trim();
             logToConsole(`[SCAN] Probing directory ${path} for MoE architectures...`);
-            fetch('/api/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: path })
-            })
-            .then(r => r.json())
-            .then(data => {
+            fetch('/api/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: path }) })
+            .then(r => r.json()).then(data => {
                 const tbody = document.getElementById('source-models-body');
-                if (data.error) {
-                    logToConsole(`[ERROR] ${data.error}`);
-                    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--bmas-danger);">${data.error}</td></tr>`;
-                    return;
-                }
+                if (data.error) { logToConsole(`[ERROR] ${data.error}`); tbody.innerHTML = `<tr><td colspan="4" style="color:var(--bmas-danger);">${data.error}</td></tr>`; return; }
                 logToConsole(`[SCAN] Found ${data.models.length} model directories.`);
-                tbody.innerHTML = data.models.map(m => {
-                    const canRam = m.ready_for_coli && m.fits_shm;
-                    const canDirect = m.ready_for_coli;
-                    return `
-                        <tr title="${m.hint}">
-                            <td style="color:var(--bmas-accent); font-weight:600;">${m.name}</td>
-                            <td>${m.size}</td>
-                            <td><span class="status-badge ${m.badge_color}">${m.badge}</span></td>
-                            <td style="text-align:right; white-space:nowrap;">
-                                <button class="small" ${canRam ? '' : 'disabled'} onclick="startTransfer('${m.path}')" title="${m.hint}">Load to RAM</button>
-                                <button class="warning small" ${canDirect ? '' : 'disabled'} onclick="launchDirect('${m.path}')" title="${m.hint}">Direct Run</button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                tbody.innerHTML = data.models.map(m => `<tr title="${m.hint}"><td style="color:var(--bmas-accent); font-weight:600;">${m.name}</td><td>${m.size}</td><td><span class="status-badge ${m.badge_color}">${m.badge}</span></td><td style="text-align:right; white-space:nowrap;"><button class="small" ${(m.ready_for_coli && m.fits_shm) ? '' : 'disabled'} onclick="startTransfer('${m.path}')" title="${m.hint}">Load to RAM</button> <button class="warning small" ${m.ready_for_coli ? '' : 'disabled'} onclick="launchDirect('${m.path}')" title="${m.hint}">Direct Run</button></td></tr>`).join('');
             });
         }
-
         function startTransfer(fullPath) {
             const proto = document.getElementById('source-protocol').value;
             logToConsole(`[COMMAND] Staging ${fullPath} (${proto.toUpperCase()}) -> /dev/shm...`);
-            fetch('/api/load', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ source_path: fullPath, protocol: proto })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) logToConsole(`[ERROR] ${data.error}`);
-                else logToConsole(`[SYSTEM] ${data.status}`);
-            });
+            fetch('/api/load', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source_path: fullPath, protocol: proto, s3_endpoint: savedEndpointUrl }) })
+            .then(r => r.json()).then(d => logToConsole(d.error ? `[ERROR] ${d.error}` : `[SYSTEM] ${d.status}`));
         }
-
         function launchEngine(modelName) {
             logToConsole(`[COMMAND] Booting RAM-resident model: ${modelName} on Port :${activeEnginePort}`);
-            fetch('/api/launch', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model_name: modelName })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) logToConsole(`[ERROR] ${data.error}`);
-                else {
-                    logToConsole(`[SYSTEM] ${data.status}`);
-                    updateStatus();
-                }
-            });
+            fetch('/api/launch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model_name: modelName }) })
+            .then(r => r.json()).then(d => { logToConsole(d.error ? `[ERROR] ${d.error}` : `[SYSTEM] ${d.status}`); updateStatus(); });
         }
-
         function launchDirect(fullPath) {
             logToConsole(`[COMMAND] Direct NVMe/NFS mmap stream launch: ${fullPath} on Port :${activeEnginePort}`);
-            fetch('/api/launch_direct', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ target_path: fullPath })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) logToConsole(`[ERROR] ${data.error}`);
-                else {
-                    logToConsole(`[SYSTEM] ${data.status}`);
-                    updateStatus();
-                }
-            });
+            fetch('/api/launch_direct', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_path: fullPath }) })
+            .then(r => r.json()).then(d => { logToConsole(d.error ? `[ERROR] ${d.error}` : `[SYSTEM] ${d.status}`); updateStatus(); });
         }
-
         function targetKill(pid) {
             logToConsole(`[COMMAND] Deploying SIGKILL to PID ${pid}...`);
-            fetch('/api/kill', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pid: pid })
-            })
-            .then(r => r.json())
-            .then(data => {
-                logToConsole(`[SYSTEM] ${data.status || data.error}`);
-                updateStatus();
-            });
+            fetch('/api/kill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pid: pid }) })
+            .then(r => r.json()).then(d => { logToConsole(`[SYSTEM] ${d.status || d.error}`); updateStatus(); });
         }
-
         function stopEngine() {
             logToConsole(`[COMMAND] Stopping active inference engine (:${activeEnginePort})...`);
-            fetch('/api/stop', { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    logToConsole(`[SYSTEM] ${data.status || data.error}`);
-                    updateStatus();
-                });
+            fetch('/api/stop', { method: 'POST' }).then(r => r.json()).then(d => { logToConsole(`[SYSTEM] ${d.status || d.error}`); updateStatus(); });
         }
-
         function sterilizeEnvironment() {
             logToConsole(`[COMMAND] Executing Force Sterilization (lsof :${activeEnginePort} + /dev/shm purge)...`);
-            fetch('/api/sterilize', { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    logToConsole(`[SYSTEM] ${data.status || data.error}`);
-                    updateStatus();
-                });
+            fetch('/api/sterilize', { method: 'POST' }).then(r => r.json()).then(d => { logToConsole(`[SYSTEM] ${d.status || d.error}`); updateStatus(); });
         }
 
         function pollTelemetryAndLogs() {
-            fetch('/api/io_stream')
-                .then(r => r.json())
-                .then(data => {
-                    const flow = document.getElementById('ram-transfer-flow');
-                    const pidTxt = document.getElementById('live-pid-text');
-                    if (data.active) {
-                        if (!isTransferring) logToConsole(`[I/O] Active /dev/shm transfer locked (PID ${data.pid})`);
-                        isTransferring = true;
-                        flow.style.display = 'block';
-                        pidTxt.innerText = `[LSOF DMA STREAM] PID: ${data.pid} | STAGED: ${data.size}`;
-                    } else {
-                        if (isTransferring) {
-                            isTransferring = false;
-                            flow.style.display = 'none';
-                            pidTxt.innerText = `TRANSFER COMPLETE — MODEL RESIDENT IN /dev/shm`;
-                            logToConsole(`[I/O] Zero-copy /dev/shm transfer complete.`);
-                            updateStatus();
-                        }
-                    }
-                }).catch(() => {});
-
-            fetch('/api/io_metrics')
-                .then(r => r.json())
-                .then(data => {
-                    const now = Date.now();
-                    const dt = Math.max(0.5, (now - lastMetricTime) / 1000.0);
-                    if (lastBytesRead > 0) {
-                        const rMbps = ((data.bytes_read - lastBytesRead) / (1024 * 1024)) / dt;
-                        const wMbps = ((data.bytes_written - lastBytesWritten) / (1024 * 1024)) / dt;
-                        document.getElementById('disk-metrics-text').innerText =
-                            `READ: ${Math.max(0, rMbps).toFixed(1)} MB/s | WRITE: ${Math.max(0, wMbps).toFixed(1)} MB/s`;
-                    }
-                    lastBytesRead = data.bytes_read;
-                    lastBytesWritten = data.bytes_written;
-                    lastMetricTime = now;
-                }).catch(() => {});
-
-            fetch('/api/logs')
-                .then(r => r.json())
-                .then(data => {
-                    const el = document.getElementById('engine-log-output');
-                    if (el.textContent !== data.logs) {
-                        el.textContent = data.logs;
-                        el.scrollTop = el.scrollHeight;
-                    }
-                }).catch(() => {});
+            fetch('/api/io_stream').then(r => r.json()).then(data => {
+                const flow = document.getElementById('ram-transfer-flow'), pidTxt = document.getElementById('live-pid-text');
+                if (data.active) {
+                    if (!isTransferring) logToConsole(`[I/O] Active /dev/shm transfer locked (PID ${data.pid})`);
+                    isTransferring = true; flow.style.display = 'block';
+                    pidTxt.innerText = `[LSOF DMA STREAM] PID: ${data.pid} | STAGED: ${data.size}`;
+                } else if (isTransferring) {
+                    isTransferring = false; flow.style.display = 'none';
+                    pidTxt.innerText = `TRANSFER COMPLETE — MODEL RESIDENT IN /dev/shm`;
+                    logToConsole(`[I/O] Zero-copy /dev/shm transfer complete.`); updateStatus();
+                }
+            }).catch(() => {});
+            fetch('/api/io_metrics').then(r => r.json()).then(data => {
+                const now = Date.now(), dt = Math.max(0.5, (now - lastMetricTime) / 1000.0);
+                if (lastBytesRead > 0) {
+                    const rMbps = ((data.bytes_read - lastBytesRead) / (1024 * 1024)) / dt;
+                    const wMbps = ((data.bytes_written - lastBytesWritten) / (1024 * 1024)) / dt;
+                    document.getElementById('disk-metrics-text').innerText = `READ: ${Math.max(0, rMbps).toFixed(1)} MB/s | WRITE: ${Math.max(0, wMbps).toFixed(1)} MB/s`;
+                }
+                lastBytesRead = data.bytes_read; lastBytesWritten = data.bytes_written; lastMetricTime = now;
+            }).catch(() => {});
+            fetch('/api/logs').then(r => r.json()).then(data => {
+                const el = document.getElementById('engine-log-output');
+                if (el.textContent !== data.logs) { el.textContent = data.logs; el.scrollTop = el.scrollHeight; }
+            }).catch(() => {});
         }
 
-        logToConsole("[BMAS-PROMETHEUS] Dashboard v1.1 initialized. Multi-protocol & custom port support online.");
+        logToConsole("[BMAS-PROMETHEUS] Dashboard v1.2 initialized. Blank-start mode, 80% PKI/TLS modal, & Multi-Arch telemetry online.");
         updateStatus();
-        scanSource();
         setInterval(updateStatus, 3000);
         setInterval(pollTelemetryAndLogs, 2000);
     </script>

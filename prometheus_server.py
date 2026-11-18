@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ==============================================================================
 # BARE METAL APPLIED SCIENCE LLC (BMAS) - CONFIDENTIAL & PROPRIETARY
-# Project : BMAS Project Prometheus Server v1.1.0 (Custom Ports + S3/NFS/HTTP)
+# Project : BMAS Project Prometheus Server v1.2.0 (PKI/mTLS + Custom Ports + Multi-Arch)
 # Copyright (c) 2026 Bare Metal Applied Science LLC. All Rights Reserved.
 # ==============================================================================
 
@@ -17,6 +17,8 @@ from prometheus_pkg.prometheus_core import (
     sterilize_environment,
     launch_detached_coli,
     stage_remote_or_local_to_shm,
+    save_pki_bundle,
+    get_pki_status,
     verify_node_license,
     trim_ring_log,
 )
@@ -26,7 +28,6 @@ app = Flask(__name__, static_folder=".", static_url_path="")
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-# Configurable default engine port (can be overridden via CLI --engine-port or GUI)
 CURRENT_ENGINE_PORT = int(os.environ.get("BMAS_ENGINE_PORT", "8000"))
 CONTROLLER_PORT = int(os.environ.get("BMAS_CONTROLLER_PORT", "5000"))
 
@@ -61,6 +62,26 @@ def set_engine_port():
         return jsonify({"error": "Port must be between 1024 and 65535"}), 400
     CURRENT_ENGINE_PORT = new_port
     return jsonify({"status": f"Target Engine Port updated to :{CURRENT_ENGINE_PORT}", "engine_port": CURRENT_ENGINE_PORT})
+
+
+@app.route("/api/pki/status", methods=["GET"])
+def api_pki_status():
+    return jsonify(get_pki_status())
+
+
+@app.route("/api/pki/save", methods=["POST"])
+def api_pki_save():
+    ok, _ = _require_license()
+    if not ok:
+        return jsonify({"error": "Commercial License Required ($499)"}), 403
+    data = request.json or {}
+    res = save_pki_bundle(
+        ca_pem=data.get("ca_pem", ""),
+        client_key=data.get("client_key", ""),
+        cert_types=data.get("cert_types", []),
+        endpoint_url=data.get("endpoint_url", ""),
+    )
+    return jsonify(res)
 
 
 @app.route("/api/license/activate", methods=["POST"])
@@ -120,6 +141,8 @@ def kill_process():
 def scan_source():
     data = request.json or {}
     path = data.get("path", "").strip()
+    if not path:
+        return jsonify({"error": "Please enter a Local or NFS directory path to scan."}), 400
     if not os.path.exists(path):
         return jsonify({"error": f"Local/NFS path not found or not mounted: {path}"}), 400
 
@@ -139,7 +162,7 @@ def scan_source():
 def io_stream():
     try:
         pids = subprocess.check_output(
-            ["pgrep", "-f", "cp -r|aws s3|s5cmd|hf download|wget"], stderr=subprocess.DEVNULL
+            ["pgrep", "-f", "cp -r|aws s3|s5cmd|hf download|wget|azcopy|gsutil"], stderr=subprocess.DEVNULL
         ).decode().strip().splitlines()
         active_pids = [p for p in pids if p]
         if active_pids:
@@ -182,7 +205,7 @@ def load_to_ram():
     target_name = data.get("target_name", "").strip()
     s3_endpoint = data.get("s3_endpoint", "").strip()
 
-    if protocol in ("local", "nfs") and not source_path.startswith(("s3://", "http://", "https://", "hf://")):
+    if protocol in ("local", "nfs") and not source_path.startswith(("s3://", "http://", "https://", "hf://", "gs://")):
         if not os.path.exists(source_path):
             return jsonify({"error": f"Source path not found: {source_path}"}), 400
         status_snapshot = get_system_status(CURRENT_ENGINE_PORT)
@@ -259,5 +282,5 @@ if __name__ == "__main__":
     CONTROLLER_PORT = args.port
     CURRENT_ENGINE_PORT = args.engine_port
 
-    print(f"[BMAS-PROMETHEUS] Starting C-Extension Controller on http://{args.host}:{CONTROLLER_PORT} (Engine Port :{CURRENT_ENGINE_PORT})")
+    print(f"[BMAS-PROMETHEUS] Starting C-Extension Controller v1.2.0 on http://{args.host}:{CONTROLLER_PORT} (Engine Port :{CURRENT_ENGINE_PORT})")
     app.run(host=args.host, port=CONTROLLER_PORT, threaded=True)
