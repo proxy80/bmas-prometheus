@@ -75,3 +75,23 @@ Open your browser to:
 ---
 
 *Copyright © 2026 Bare Metal Applied Science LLC. Confidential & Proprietary. All Rights Reserved.*
+
+---
+
+## 6. Custom Ports & Multi-Instance Deployment
+
+By default, Prometheus runs the **Web Controller** on **TCP `:5000`** and targets the **Inference Engine** on **TCP `:8000`**.
+
+### Override Ports via Environment Variables (`./launch_prometheus.sh`)
+
+    cd ~/bmas_ai/prometheus
+    BMAS_CONTROLLER_PORT=5050 BMAS_ENGINE_PORT=8080 ./launch_prometheus.sh
+
+### Override Ports via CLI Flags (`prometheus_server.py`)
+
+    cd ~/bmas_ai/prometheus
+    python3 prometheus_server.py --host 0.0.0.0 --port 5050 --engine-port 8080
+
+### Live Engine Port Adjustment in the Web UI
+- Update the **Engine Port** number box directly inside the **Environment Status** panel on the dashboard (`http://<host-ip>:5000`) to switch the target inference port without restarting the controller.
+- If port `:5000` is already occupied on your host, set `BMAS_CONTROLLER_PORT` before starting `./launch_prometheus.sh` so the daemon binds cleanly to your chosen port.
