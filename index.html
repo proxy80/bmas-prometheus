@@ -142,6 +142,158 @@
             button, .auth-gate-overlay, .modal-overlay { display: none !important; }
             .nda-footer { color: #000 !important; border-top: 2px solid #000 !important; font-weight: bold; page-break-inside: avoid; }
         }
+    
+/* === BMAS_MLP_V14_REACTOR: Full-Height Logs + Symmetric P1-P4 Live Reactor === */
+.grid-3col { align-items: stretch; }
+.grid-3col > div:last-child { display: flex; flex-direction: column; }
+
+.bmas-mlp-card {
+    background: radial-gradient(circle at 50% 45%, #0d1526 0%, #050810 100%);
+    border: 1px solid #26354d;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+}
+.bmas-mlp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.bmas-mlp-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #58a6ff;
+    text-transform: uppercase;
+}
+.bmas-mlp-live-pill {
+    font-size: 0.7rem;
+    font-family: monospace;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(88, 166, 255, 0.14);
+    border: 1px solid rgba(88, 166, 255, 0.4);
+    color: #9ecbff;
+    margin-right: 8px;
+}
+.bmas-mlp-live-pill.hot {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    color: #fff3b0;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.45);
+}
+.bmas-mlp-gold-btn {
+    background: linear-gradient(135deg, #ffd700 0%, #d49b00 100%);
+    color: #0b0f17;
+    border: 1px solid #ffe666;
+    border-radius: 5px;
+    width: 26px;
+    height: 26px;
+    font-size: 1.15rem;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.45);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    padding: 0;
+}
+.bmas-mlp-gold-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.85);
+}
+.bmas-mlp-inline-canvas {
+    width: 100%;
+    height: 215px;
+    display: block;
+    cursor: grab;
+    border-radius: 6px;
+}
+.bmas-mlp-inline-canvas:active { cursor: grabbing; }
+.bmas-mlp-hint {
+    font-size: 0.68rem;
+    color: #8b949e;
+    text-align: right;
+    margin-top: 4px;
+}
+
+/* 100% FULL-SCREEN (100vw x 100vh) MLP MODAL */
+#bmas-mlp-fullscreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 30000;
+    background: radial-gradient(circle at center, #0c1424 0%, #03060c 100%);
+    flex-direction: column;
+}
+#bmas-mlp-fullscreen.open { display: flex; }
+.bmas-mlp-fs-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 22px;
+    background: rgba(13, 17, 23, 0.9);
+    border-bottom: 1px solid #26354d;
+    z-index: 2;
+}
+.bmas-mlp-fs-title {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.bmas-mlp-fs-title span { color: #ffd700; }
+.bmas-mlp-fs-close {
+    background: #f85149;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.bmas-mlp-fs-stage {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+}
+#bmas-mlp-fs-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+}
+#bmas-mlp-fs-canvas:active { cursor: grabbing; }
+.bmas-mlp-fs-hud {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    pointer-events: none;
+}
+.bmas-mlp-hud-card {
+    background: rgba(10, 14, 22, 0.85);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 10px 14px;
+    backdrop-filter: blur(6px);
+}
+.bmas-mlp-hud-card .p-tag { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.8px; margin-bottom: 4px; }
+.bmas-mlp-hud-card .p-val { font-size: 0.95rem; font-weight: 800; color: #fff; font-family: monospace; }
+.bmas-mlp-hud-card .p-sub { font-size: 0.72rem; color: #8b949e; margin-top: 3px; }
+
     </style>
 </head>
 <body>
@@ -693,5 +845,376 @@
         setInterval(updateStatus, 3000);
         setInterval(pollTelemetryAndLogs, 2000);
     </script>
+
+<!-- === BMAS_MLP_V14_REACTOR: 100% Full-Screen Symmetric Reactor === -->
+<div id="bmas-mlp-fullscreen">
+    <div class="bmas-mlp-fs-bar">
+        <div class="bmas-mlp-fs-title">BMAS PROMETHEUS &bull; <span>P1–P4</span> SYMMETRIC 3D MLP REACTOR (LIVE SILICON LOAD)</div>
+        <button class="bmas-mlp-fs-close" onclick="closeMlpFullscreen()">✕ Close (ESC)</button>
+    </div>
+    <div class="bmas-mlp-fs-stage">
+        <canvas id="bmas-mlp-fs-canvas"></canvas>
+        <div class="bmas-mlp-fs-hud">
+            <div class="bmas-mlp-hud-card" style="border-top: 2px solid #58a6ff;">
+                <div class="p-tag" style="color:#58a6ff;">P1 &bull; STORAGE &amp; HOST DDR BUS</div>
+                <div class="p-val" id="hud-p1-val">HYBRID_VRAM_SHM</div>
+                <div class="p-sub" id="hud-p1-sub">DDR Free: -- GB</div>
+            </div>
+            <div class="bmas-mlp-hud-card" style="border-top: 2px solid #2ea043;">
+                <div class="p-tag" style="color:#2ea043;">P2 &bull; VOLATILE /dev/shm RING</div>
+                <div class="p-val" id="hud-p2-val">0% / 31.3 GB</div>
+                <div class="p-sub" id="hud-p2-sub">Resident Models: 0</div>
+            </div>
+            <div class="bmas-mlp-hud-card" style="border-top: 2px solid #ffd700;">
+                <div class="p-tag" style="color:#ffd700;">P3 &bull; MoE ROUTING &amp; CPU FLUX</div>
+                <div class="p-val" id="hud-p3-val">CPU 0.0% • IDLE</div>
+                <div class="p-sub" id="hud-p3-sub">Awaiting active prompt surge</div>
+            </div>
+            <div class="bmas-mlp-hud-card" style="border-top: 2px solid #bc8cff;">
+                <div class="p-tag" style="color:#bc8cff;">P4 &bull; GPU SILICON &amp; PORT</div>
+                <div class="p-val" id="hud-p4-val">GPU 0% • 0°C</div>
+                <div class="p-sub" id="hud-p4-sub">VRAM: 0 / 8192 MB • Zombies: 0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const mlpState = {
+        shmPct: 1, shmUsage: "0", shmTotal: "31.3GB", ramModels: 0,
+        isRunning: false, portStatus: "PORT 8000 CLEAR", zombies: 0,
+        gpu: "NVIDIA GPU", vram: 8, ramGb: 62.7, ramAvail: 56.5, tier: "HYBRID_VRAM_SHM",
+        cpuPct: 0, gpuPct: 0, peakPct: 0, vramUsedMb: 0, vramTotalMb: 8192, gpuTempC: 0,
+        smoothEnergy: 0.12
+    };
+
+    const origFetch = window.fetch;
+    window.fetch = async function(...args) {
+        const res = await origFetch.apply(this, args);
+        try {
+            const url = typeof args[0] === "string" ? args[0] : (args[0] && args[0].url) || "";
+            if (url.includes("/api/status")) {
+                res.clone().json().then(d => {
+                    mlpState.shmPct = d.shm_percent || 1;
+                    mlpState.shmUsage = d.shm_usage || "0";
+                    mlpState.shmTotal = d.shm_total || "31.3GB";
+                    mlpState.ramModels = (d.ram_models || []).length;
+                    mlpState.isRunning = !!d.is_running;
+                    mlpState.portStatus = d.port_status || "PORT 8000 CLEAR";
+                    mlpState.zombies = d.zombies || 0;
+                    if (d.hardware) {
+                        mlpState.gpu = d.hardware.gpu || mlpState.gpu;
+                        mlpState.vram = d.hardware.vram_gb || mlpState.vram;
+                        mlpState.ramGb = d.hardware.ram_gb || mlpState.ramGb;
+                        mlpState.ramAvail = d.hardware.ram_avail_gb || mlpState.ramAvail;
+                        mlpState.tier = d.hardware.tier_mode || mlpState.tier;
+                    }
+                    if (d.live_load) {
+                        mlpState.cpuPct = d.live_load.cpu_pct || 0;
+                        mlpState.gpuPct = d.live_load.gpu_pct || 0;
+                        mlpState.peakPct = d.live_load.peak_pct || 0;
+                        mlpState.vramUsedMb = d.live_load.vram_used_mb || 0;
+                        mlpState.vramTotalMb = d.live_load.vram_total_mb || 8192;
+                        mlpState.gpuTempC = d.live_load.gpu_temp_c || 0;
+                    }
+                    updateMlpHud();
+                }).catch(() => {});
+            }
+        } catch(e) {}
+        return res;
+    };
+
+    function updateMlpHud() {
+        const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+        const hot = mlpState.peakPct >= 40;
+        const fluxLabel = mlpState.peakPct >= 75 ? "CRITICAL FLUX" : (hot ? "ACTIVE SURGE" : (mlpState.isRunning ? "ONLINE • CALM" : "STANDBY"));
+
+        set("hud-p1-val", mlpState.tier);
+        set("hud-p1-sub", `DDR Free: ${mlpState.ramAvail} / ${mlpState.ramGb} GB`);
+        set("hud-p2-val", `${mlpState.shmPct}% (${mlpState.shmUsage} / ${mlpState.shmTotal})`);
+        set("hud-p2-sub", `Resident /dev/shm Models: ${mlpState.ramModels}`);
+        set("hud-p3-val", `CPU ${mlpState.cpuPct.toFixed(1)}% • ${fluxLabel}`);
+        set("hud-p3-sub", `Peak Compute Load: ${mlpState.peakPct.toFixed(1)}%`);
+        set("hud-p4-val", `GPU ${mlpState.gpuPct.toFixed(0)}% • ${mlpState.gpuTempC}°C`);
+        set("hud-p4-sub", `VRAM: ${mlpState.vramUsedMb} / ${mlpState.vramTotalMb} MB • ${mlpState.portStatus}`);
+
+        const pill = document.getElementById("bmas-mlp-live-pill");
+        if (pill) {
+            pill.textContent = `CPU ${mlpState.cpuPct.toFixed(0)}% | GPU ${mlpState.gpuPct.toFixed(0)}%`;
+            pill.classList.toggle("hot", hot);
+        }
+    }
+
+    function stretchRightColumn() {
+        const labels = Array.from(document.querySelectorAll("label"));
+        const colibriLabel = labels.find(l => l.textContent.includes("Colibrì Engine Stream") || l.textContent.includes("/tmp/colibri.log"));
+        if (!colibriLabel) return;
+        const logEl = colibriLabel.nextElementSibling;
+        const panel = colibriLabel.closest(".panel");
+        if (panel) {
+            panel.style.display = "flex";
+            panel.style.flexDirection = "column";
+            panel.style.flex = "1";
+        }
+        if (logEl) {
+            logEl.style.flex = "1";
+            logEl.style.height = "auto";
+            logEl.style.minHeight = "260px";
+            logEl.style.maxHeight = "none";
+        }
+    }
+
+    function injectInlineMlpCard() {
+        const grid = document.querySelector(".grid-3col");
+        if (!grid || grid.children.length < 2) return;
+        const midCol = grid.children[1];
+        const midPanel = midCol.classList.contains("panel") ? midCol : midCol.querySelector(".panel");
+        if (!midPanel) return;
+
+        const card = document.createElement("div");
+        card.className = "bmas-mlp-card";
+        card.innerHTML = `
+            <div class="bmas-mlp-header">
+                <span class="bmas-mlp-title">P1–P4 3D MLP Reactor</span>
+                <div style="display:flex; align-items:center;">
+                    <span id="bmas-mlp-live-pill" class="bmas-mlp-live-pill">CPU 0% | GPU 0%</span>
+                    <button class="bmas-mlp-gold-btn" title="Expand 100% Full-Screen 3D View" onclick="openMlpFullscreen()">+</button>
+                </div>
+            </div>
+            <canvas id="bmas-mlp-inline-canvas" class="bmas-mlp-inline-canvas"></canvas>
+            <div class="bmas-mlp-hint">Symmetric P1–P4 CCW orbit &bull; Live CPU/GPU load flare &bull; Gold + for 100% view</div>
+        `;
+
+        const hwEl = Array.from(midPanel.children).find(el => el.textContent.includes("Live Hardware Profile") || (el.id && el.id.toLowerCase().includes("hw")));
+        if (hwEl) midPanel.insertBefore(card, hwEl);
+        else midPanel.appendChild(card);
+    }
+
+    function createMlpRenderer(canvas) {
+        const ctx = canvas.getContext("2d");
+        const planes = [
+            { label: "P1", color: "#58a6ff", z: -1.5 },
+            { label: "P2", color: "#2ea043", z: -0.5 },
+            { label: "P3", color: "#ffd700", z:  0.5 },
+            { label: "P4", color: "#bc8cff", z:  1.5 }
+        ];
+
+        // 48 symmetric signal packets firing across P1 -> P2 -> P3 -> P4
+        const packets = Array.from({ length: 48 }, (_, i) => ({
+            planeIdx: i % 3,
+            fromNode: i % 9,
+            toNode: (i * 4 + 2) % 9,
+            t: (i / 48),
+            speed: 0.008 + (i % 5) * 0.003
+        }));
+
+        let rotY = 0.65, rotX = 0.24, phase = 0;
+        let dragging = false, lastX = 0, lastY = 0;
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+        }
+        window.addEventListener("resize", resize);
+
+        canvas.addEventListener("pointerdown", e => {
+            dragging = true; lastX = e.clientX; lastY = e.clientY;
+            canvas.setPointerCapture(e.pointerId);
+        });
+        canvas.addEventListener("pointermove", e => {
+            if (!dragging) return;
+            rotY += (e.clientX - lastX) * 0.008;
+            rotX = Math.max(-0.9, Math.min(0.9, rotX + (e.clientY - lastY) * 0.008));
+            lastX = e.clientX; lastY = e.clientY;
+        });
+        canvas.addEventListener("pointerup", () => { dragging = false; });
+        canvas.addEventListener("pointercancel", () => { dragging = false; });
+
+        function project(x, y, z, w, h, scale) {
+            const cy = Math.cos(rotY), sy = Math.sin(rotY);
+            const cx = Math.cos(rotX), sx = Math.sin(rotX);
+            const x1 = x * cy - z * sy;
+            const z1 = x * sy + z * cy;
+            const y2 = y * cx - z1 * sx;
+            const z2 = y * sx + z1 * cx + 5.4;
+            const f = scale / Math.max(1.2, z2);
+            return { sx: w / 2 + x1 * f, sy: h / 2 + y2 * f, z: z2 };
+        }
+
+        function draw() {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+            if (canvas.width !== Math.round(rect.width * Math.min(window.devicePixelRatio || 1, 2))) resize();
+
+            const w = rect.width, h = rect.height;
+            const scale = Math.min(w, h) * 1.48;
+
+            // Map real CPU/GPU peak load (0-100%) to reactor energy (0.10 idle -> 1.0 nuclear flare)
+            const targetEnergy = Math.max(0.10, Math.min(1.0, mlpState.peakPct / 100.0));
+            mlpState.smoothEnergy += (targetEnergy - mlpState.smoothEnergy) * 0.08;
+            const E = mlpState.smoothEnergy;
+            const isHot = mlpState.peakPct >= 40;
+
+            phase += 0.015 + E * 0.09;
+
+            if (!dragging) {
+                rotY -= (0.003 + E * 0.004); // Steady slow CCW orbit, slightly livelier under load
+                rotX += (0.24 - rotX) * 0.04;
+            }
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Reactor core radial glow when load >= 40%
+            if (E > 0.30) {
+                const rad = Math.min(w, h) * (0.25 + E * 0.28);
+                const grad = ctx.createRadialGradient(w / 2, h / 2, 4, w / 2, h / 2, rad);
+                grad.addColorStop(0, isHot ? `rgba(255, 215, 0, ${(E * 0.28).toFixed(2)})` : `rgba(88, 166, 255, ${(E * 0.18).toFixed(2)})`);
+                grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            // Symmetric 3x3 node grids across P1-P4
+            const gridPts = planes.map((pl, pi) => {
+                const pts = [];
+                for (let r = -1; r <= 1; r++) {
+                    for (let c = -1; c <= 1; c++) {
+                        const ripple = Math.sin(phase + pi * 1.1 + r + c) * (0.02 + E * 0.11);
+                        pts.push(project(c * 0.68, r * 0.56 + ripple, pl.z, w, h, scale));
+                    }
+                }
+                const corners = [
+                    project(-0.92, -0.78, pl.z, w, h, scale),
+                    project( 0.92, -0.78, pl.z, w, h, scale),
+                    project( 0.92,  0.78, pl.z, w, h, scale),
+                    project(-0.92,  0.78, pl.z, w, h, scale)
+                ];
+                return { pl, pts, corners };
+            });
+
+            // Symmetric structural axons
+            for (let p = 0; p < 3; p++) {
+                const A = gridPts[p].pts, B = gridPts[p + 1].pts;
+                ctx.strokeStyle = isHot
+                    ? `rgba(255, 215, 0, ${(0.18 + E * 0.35).toFixed(2)})`
+                    : `rgba(88, 166, 255, ${(0.10 + E * 0.25).toFixed(2)})`;
+                ctx.lineWidth = 0.8 + E * 1.1;
+                for (let i = 0; i < 9; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(A[i].sx, A[i].sy);
+                    ctx.lineTo(B[i].sx, B[i].sy);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw planes back-to-front
+            const sorted = [...gridPts].sort((a, b) => b.corners[0].z - a.corners[0].z);
+            sorted.forEach(({ pl, pts, corners }) => {
+                ctx.fillStyle = pl.color + (isHot ? "26" : "14");
+                ctx.strokeStyle = pl.color + (isHot ? "ee" : "aa");
+                ctx.lineWidth = isHot ? 2.0 : 1.3;
+                ctx.beginPath();
+                ctx.moveTo(corners[0].sx, corners[0].sy);
+                for (let k = 1; k < 4; k++) ctx.lineTo(corners[k].sx, corners[k].sy);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = pl.color;
+                ctx.font = "bold 12px monospace";
+                ctx.fillText(pl.label, corners[0].sx + 5, corners[0].sy - 6);
+
+                pts.forEach((pt, idx) => {
+                    const pulse = Math.abs(Math.sin(phase * 1.6 + idx));
+                    const r = 2.0 + pulse * (1.0 + E * 4.5);
+                    if (isHot) {
+                        ctx.beginPath();
+                        ctx.arc(pt.sx, pt.sy, r * 2.1, 0, Math.PI * 2);
+                        ctx.fillStyle = pl.color + "33";
+                        ctx.fill();
+                    }
+                    ctx.beginPath();
+                    ctx.arc(pt.sx, pt.sy, r, 0, Math.PI * 2);
+                    ctx.fillStyle = isHot && pulse > 0.7 ? "#ffffff" : pl.color;
+                    ctx.fill();
+                });
+            });
+
+            // High-velocity plasma bolts scaling directly with real CPU/GPU load
+            const activeCount = Math.max(12, Math.round(12 + E * 36));
+            for (let i = 0; i < activeCount; i++) {
+                const pk = packets[i];
+                pk.t += pk.speed * (0.45 + E * 4.2);
+                if (pk.t >= 1) {
+                    pk.t = 0;
+                    pk.planeIdx = (pk.planeIdx + 1) % 3;
+                    pk.fromNode = pk.toNode;
+                    pk.toNode = (pk.toNode + 1 + Math.floor(Math.random() * 8)) % 9;
+                }
+                const A = gridPts[pk.planeIdx].pts[pk.fromNode];
+                const B = gridPts[pk.planeIdx + 1].pts[pk.toNode];
+                const px = A.sx + (B.sx - A.sx) * pk.t;
+                const py = A.sy + (B.sy - A.sy) * pk.t;
+                const tx = A.sx + (B.sx - A.sx) * Math.max(0, pk.t - (0.12 + E * 0.16));
+                const ty = A.sy + (B.sy - A.sy) * Math.max(0, pk.t - (0.12 + E * 0.16));
+
+                ctx.strokeStyle = isHot ? "rgba(255, 220, 60, 0.92)" : "rgba(88, 166, 255, 0.75)";
+                ctx.lineWidth = 1.4 + E * 2.4;
+                ctx.beginPath();
+                ctx.moveTo(tx, ty);
+                ctx.lineTo(px, py);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(px, py, 2.0 + E * 3.2, 0, Math.PI * 2);
+                ctx.fillStyle = isHot ? "#ffffff" : "#d2ecff";
+                ctx.fill();
+            }
+        }
+        return { draw, resize };
+    }
+
+    let inlineR = null, fsR = null, fastPollTimer = null;
+    window.openMlpFullscreen = function() {
+        const modal = document.getElementById("bmas-mlp-fullscreen");
+        modal.classList.add("open");
+        if (fsR) setTimeout(() => fsR.resize(), 30);
+        if (!fastPollTimer) {
+            fastPollTimer = setInterval(() => {
+                fetch("/api/status").catch(() => {});
+            }, 1000);
+        }
+    };
+    window.closeMlpFullscreen = function() {
+        document.getElementById("bmas-mlp-fullscreen").classList.remove("open");
+        if (fastPollTimer) { clearInterval(fastPollTimer); fastPollTimer = null; }
+    };
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") window.closeMlpFullscreen();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        stretchRightColumn();
+        injectInlineMlpCard();
+        const cInline = document.getElementById("bmas-mlp-inline-canvas");
+        const cFs = document.getElementById("bmas-mlp-fs-canvas");
+        if (cInline) inlineR = createMlpRenderer(cInline);
+        if (cFs) fsR = createMlpRenderer(cFs);
+        function loop() {
+            if (inlineR) inlineR.draw();
+            if (fsR && document.getElementById("bmas-mlp-fullscreen").classList.contains("open")) fsR.draw();
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+    });
+})();
+</script>
+
 </body>
 </html>

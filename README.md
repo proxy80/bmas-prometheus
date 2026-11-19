@@ -1,29 +1,36 @@
 # BMAS Project Prometheus (`bmas-prometheus`) v1.2.0
-**Cython-Compiled (`.so`) Bare-Metal Mixture-of-Experts (MoE) `/dev/shm` Memory-Mapped I/O, PKI/mTLS & Multi-Arch Runtime Orchestrator**
+**Cython-Compiled (`.so`) Bare-Metal Mixture-of-Experts (MoE) `/dev/shm` Zero-Copy Orchestrator, PKI/mTLS Gateway & Live Silicon Telemetry Suite**
 
-Developed by **Bare Metal Applied Science LLC (BMAS)**, Project Prometheus is an enterprise bare-metal memory orchestration appliance engineered to eliminate storage I/O bottlenecks, orphaned shared-memory descriptor locks, and terminal buffer freezes when executing large Mixture-of-Experts (MoE) language models (`Qwen3.6-35B-A3B`, `OLMoE`, `GLM-5.2`, `DeepSeek`) across **AMD (EPYC/Ryzen)**, **Intel (Xeon/Core)**, and **ARM64 (Neoverse/Ampere/Grace)** hosts.
-
----
-
-## 1. What Problem Does Project Prometheus Solve?
-
-1. **Storage Starvation:** Streaming active MoE expert weights from standard SSDs, USB archives, or network shares introduces severe token-to-token jitter.
-2. **Orphaned `/dev/shm` Locks:** Abruptly terminated inference jobs (`coli`, `vLLM`, `llama-server`) leave zombie processes and locked memory segments inside `/dev/shm` and on TCP inference ports, causing subsequent runs to crash with `OOM` or `Address already in use`.
-3. **Unquantized Format Mismatches:** Operators frequently mix raw HuggingFace `.safetensors` archives, `.gguf` files, and native Colibrì quantized shards (`int4_gs64` / `int8`). Prometheus auto-inspects directories and flags incompatible formats before launch.
-4. **Enterprise / DoD TLS & mTLS Friction:** Pulling model weights from sovereign MinIO/S3, Azure Blob, GCS, or air-gapped HTTPS APIs fails without custom CA bundles. Prometheus injects PEM/PKI trust stores directly into volatile RAM (`/dev/shm/.bmas_secure`).
-5. **TTY / Browser Buffer Freezes:** Auto-trimming 64KB ring buffers prevent long-running daemons from blocking on `SIGPIPE` or freezing the browser DOM.
+Engineered by **Bare Metal Applied Science LLC (BMAS)**, Project Prometheus is a commercial-grade bare-metal AI infrastructure appliance built to eliminate storage I/O starvation, orphaned shared-memory locks, and blind inference execution when running large Mixture-of-Experts (MoE) models (`Qwen3.6-35B-A3B`, `OLMoE`, `GLM`, `DeepSeek`) across **AMD (EPYC/Ryzen)**, **Intel (Xeon/Core)**, and **ARM64 (Neoverse/Ampere/Grace)** servers.
 
 ---
 
-## 2. Key Features in v1.2.0
+## 1. Executive Summary: Why Project Prometheus?
 
-- **Zero Hardcoded Defaults (Blank-Start Design):** Fresh installations start with an empty source path and model table—no pre-baked lab paths or hardcoded model lists.
-- **80% Viewport PKI / PEM & Endpoint Configuration Modal:** Standardized `80vw` enterprise modal (1440 UI format) supporting:
-  - Protocol/Trust checkboxes: **AWS S3 / Sovereign MinIO**, **Azure Blob**, **Google Cloud Storage (GCS)**, **DoD / Enterprise mTLS PKI**, **Secure NFSv4 / Lustre / Kerberos**, and **Private HTTPS / TLS 1.3 APIs**.
-  - Volatile RAM-only storage in `/dev/shm/.bmas_secure/` (`chmod 600`) with automatic environment injection (`AWS_CA_BUNDLE`, `REQUESTS_CA_BUNDLE`, `SSL_CERT_FILE`). Certificates are never written to persistent disk and purge automatically on reboot.
-- **Dynamic Multi-Arch Hardware & I/O Telemetry:** Live `/proc/cpuinfo`, `/proc/meminfo`, and `nvidia-smi` profiling across **AMD**, **Intel**, and **ARM64** systems, displaying core count, architecture, DDR RAM utilization, `/dev/shm` capacity, active MoE source block type, and real-time MB/s bus throughput.
-- **Cython `.so` Hardware-Bound Licensing:** Core telemetry, sterilization, and cryptographic license verification are compiled into a stripped ELF shared object (`prometheus_core.so`).
-- **Executive Landscape PDF Audit Export:** One-click STAR-formatted BMAS HTML Report export via browser print-to-PDF.
+Enterprise and sovereign AI teams deploying sparse MoE models on bare-metal or brownfield infrastructure face four recurring operational failures:
+1. **Storage I/O Bottlenecks:** Streaming multi-gigabyte expert weights from SSDs, USB arrays, or network shares throttles token velocity and introduces severe latency jitter.
+2. **Orphaned `/dev/shm` & Port Locks:** Crashed or hot-swapped inference daemons (`coli`, `vLLM`, `llama-server`) leave zombie processes and locked POSIX shared-memory segments that trigger `OOM` or `Address already in use` failures.
+3. **Enterprise & DoD TLS/mTLS Friction:** Air-gapped and regulated enclaves require custom Root CAs and mTLS client keys to pull weights from sovereign MinIO/S3, Azure Blob, GCS, or private HTTPS endpoints—without writing sensitive certificates to persistent disk.
+4. **Zero Real-Time Compute Visibility:** Operators lack a unified, low-overhead control plane that ties storage ingress, `/dev/shm` residency, and live CPU/GPU silicon load into a single executive dashboard.
+
+**Project Prometheus** resolves all four at the compiled C-extension level (`prometheus_core.cpython-312-x86_64-linux-gnu.so`).
+
+---
+
+## 2. Core Architectural Capabilities
+
+- **Zero-Copy `/dev/shm` Shared-Memory Staging:** Streams quantized MoE weights directly into volatile Linux RAM disk (`/dev/shm/colibri_models`) so inference engines execute at full host DDR memory bandwidth.
+- **Live Silicon-Reactive 3D `P1–P4` MLP Reactor (`100vw × 100vh` Full-Screen):**
+  - **P1 — Storage & Host DDR Bus:** Tracks active memory tier (`HYBRID_VRAM_SHM`) and available host DDR headroom.
+  - **P2 — Volatile `/dev/shm` Ring:** Monitors real-time `/dev/shm` capacity, utilization percentage, and resident MoE model count.
+  - **P3 — MoE Routing & CPU Flux:** Driven by real-time `/proc/stat` CPU utilization deltas—cruises in calm cyan at idle and automatically surges into gold/white plasma flux (`40%–100%` load) during active prompt generation.
+  - **P4 — GPU Silicon & Port Hygiene:** Streams live `nvidia-smi` GPU utilization, VRAM allocation, thermal telemetry (°C), target port binding, and zombie process counts.
+  - Click the **gold `+`** control on the MLP card to launch the interactive **100% full-screen (`100vw × 100vh`)** 3D reactor with pointer-drag orbit and live 4-plane HUD.
+- **80% Viewport PKI / mTLS Volatile Trust Vault:** Injects PEM Root/Server CA bundles and optional mTLS client keys directly into `/dev/shm/.bmas_secure/` (`chmod 600`) with automatic environment export (`AWS_CA_BUNDLE`, `REQUESTS_CA_BUNDLE`, `SSL_CERT_FILE`). Keys never touch persistent storage and purge automatically on reboot.
+- **Multi-Protocol MoE Ingestion:** Supports Local NVMe/SSD/USB, NFS/Lustre/BeeGFS/Spectrum Scale mounts, AWS S3 / Sovereign MinIO (`s3://`), Azure Blob, Google Cloud Storage, and HuggingFace / HTTPS APIs.
+- **Sterile `lsof` & `pgrep` Process Reaper:** Audits active TCP port bindings and purges orphaned inference processes before staging or hot-swapping models.
+- **Zero-Dead-Space Telemetry & 64 KB Ring-Buffered Logs:** Full-height **Colibrì Engine Stream (`/tmp/colibri.log`)** with automatic 64 KB ring-log capping to prevent SSH TTY lockups and browser DOM freezes during multi-week uptime.
+- **1-Click BMAS Executive Landscape PDF Audit Report:** Exports a timestamped, STAR-formatted compliance and hardware audit report via `@media print`.
 
 ---
 
@@ -32,15 +39,13 @@ Developed by **Bare Metal Applied Science LLC (BMAS)**, Project Prometheus is an
 ### Prerequisites
 - Linux host (Ubuntu 22.04/24.04, Rocky Linux 9, RHEL 9) on `x86_64` or `aarch64`
 - Python 3.10+ with `flask` installed
-- `lsof`, `du`, `df`, and `coli` (Colibrì MoE runtime) available in `$PATH`
-- Optional cloud CLI tools depending on ingest protocol: `s5cmd` or `aws` (S3/MinIO), `azcopy` (Azure), `gsutil` (GCS), `hf` / `wget` (HuggingFace/HTTPS)
+- `lsof`, `du`, `df`, and `coli` (Colibrì MoE runtime) in `$PATH`
+- Optional cloud CLI tools depending on protocol: `s5cmd` / `aws` (S3/MinIO), `azcopy` (Azure), `gsutil` (GCS), `hf` / `wget` (HTTP/HF)
 
-### Launch the Control Plane
+### Launch the Detached Control Plane
 
     cd ~/bmas_ai/prometheus
     ./launch_prometheus.sh
-
-By default, Prometheus binds the Web Controller to **TCP `:5000`** and targets the inference engine on **TCP `:8000`** (configurable live in the Web UI or via `--port` / `--engine-port` flags).
 
 Open your browser to:
 
@@ -48,39 +53,9 @@ Open your browser to:
 
 ---
 
-## 4. Operator Workflow
+## 4. Custom Ports & Multi-Instance Deployment
 
-1. **Authenticate & Verify License:**
-   - Enter the BMAS Operator Passcode (default: `bmas2026`).
-   - If the node is unlicensed, copy the **Hardware Node Fingerprint** (`BMAS-XXXX-XXXX-XXXX`) and apply your `PROM-...` commercial activation key.
-2. **Configure PKI / TLS Trust (Optional for Cloud / DoD Enclaves):**
-   - Click **PKI / Endpoint Config (80%)** in the top bar.
-   - Check your target protocols, enter any custom S3/MinIO endpoint URL, paste your PEM Root/Server CA bundle (and optional mTLS client private key), and click **Save & Inject PKI / TLS Trust**.
-3. **Source & Stage MoE Models:**
-   - Select your **Ingest Protocol** (`Local NVMe`, `NFS / Lustre`, `AWS S3 / MinIO`, `Azure Blob`, `GCS`, or `HTTPS / HF API`).
-   - Enter your directory path or stream URI and click **Scan** (for local/NFS) or **Stream -> RAM** (for cloud/API).
-   - For verified `COLIBRI READY` models, click **Load to RAM** (zero-copy `/dev/shm` staging) or **Direct Run** (direct `mmap` stream).
-4. **Boot & Monitor:**
-   - Once resident in `/dev/shm/colibri_models`, click **Boot Engine** and open the Colibrì Web interface via **Open Colibrì Web (:8000)**.
-   - Use **Stop Engine** to halt inference while keeping `/dev/shm` warm, or **Force Sterilize** to SIGKILL orphaned processes and purge `/dev/shm`.
-
----
-
-## 5. Commercial Licensing & Support
-
-- **Commercial Node License:** `$499.00` Perpetual Base (hardware-bound via Cython `.so` Node Fingerprint)
-- **Annual Maintenance & Updates:** `$180.00 / year`
-- **Enterprise B2B / C2C Integration & Consulting:** Bare Metal Applied Science LLC (`jefferson@baremetalappliedscience.com` | `baremetalappliedscience.com`)
-
----
-
-*Copyright © 2026 Bare Metal Applied Science LLC. Confidential & Proprietary. All Rights Reserved.*
-
----
-
-## 6. Custom Ports & Multi-Instance Deployment
-
-By default, Prometheus runs the **Web Controller** on **TCP `:5000`** and targets the **Inference Engine** on **TCP `:8000`**.
+By default, Prometheus binds the **Web Controller** to **TCP `:5000`** and targets the **Inference Engine** on **TCP `:8000`**.
 
 ### Override Ports via Environment Variables (`./launch_prometheus.sh`)
 
@@ -92,6 +67,19 @@ By default, Prometheus runs the **Web Controller** on **TCP `:5000`** and target
     cd ~/bmas_ai/prometheus
     python3 prometheus_server.py --host 0.0.0.0 --port 5050 --engine-port 8080
 
-### Live Engine Port Adjustment in the Web UI
-- Update the **Engine Port** number box directly inside the **Environment Status** panel on the dashboard (`http://<host-ip>:5000`) to switch the target inference port without restarting the controller.
-- If port `:5000` is already occupied on your host, set `BMAS_CONTROLLER_PORT` before starting `./launch_prometheus.sh` so the daemon binds cleanly to your chosen port.
+### Live Engine Port Adjustment
+- Update the **Engine Port** field inside the **Environment Status** panel on the dashboard to switch the target inference port without restarting the controller.
+
+---
+
+## 5. Commercial Licensing & Enterprise Support
+
+Project Prometheus core orchestration and telemetry routines are compiled into a stripped ELF shared object (`prometheus_core.so`) with hardware-bound node licensing.
+
+- **Commercial Node License:** `$499` per node (includes 365-day activation key bound to host Hardware Node Fingerprint `BMAS-XXXX-XXXX-XXXX`).
+- **Annual Maintenance & Updates:** `$180 / year`.
+- **Activation & Procurement:** Launch the controller, copy your **Hardware Node Fingerprint** from the license gate, and contact **Bare Metal Applied Science LLC** (`jefferson@baremetalappliedscience.com` | `baremetalappliedscience.com`).
+
+---
+
+*Copyright (c) 2026 Bare Metal Applied Science LLC. Confidential & Proprietary. All Rights Reserved.*

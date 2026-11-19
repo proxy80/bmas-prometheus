@@ -42,6 +42,49 @@ def serve_dashboard():
     return app.send_static_file("index.html")
 
 
+
+_PREV_CPU = [0, 0]
+
+def _get_live_silicon_load():
+    """Lightweight real-time CPU % (/proc/stat) + GPU %/VRAM/Temp (nvidia-smi)."""
+    cpu_pct = 0.0
+    try:
+        with open("/proc/stat", "r") as f:
+            parts = [int(x) for x in f.readline().split()[1:8]]
+        idle = parts[3] + parts[4]
+        total = sum(parts)
+        dt = total - _PREV_CPU[0]
+        di = idle - _PREV_CPU[1]
+        if _PREV_CPU[0] > 0 and dt > 0:
+            cpu_pct = round(max(0.0, min(100.0, (1.0 - (di / dt)) * 100.0)), 1)
+        _PREV_CPU[0], _PREV_CPU[1] = total, idle
+    except Exception:
+        pass
+
+    gpu_pct, vram_used, vram_total, gpu_temp = 0.0, 0, 0, 0
+    try:
+        out = subprocess.check_output(
+            ["nvidia-smi", "--query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu",
+             "--format=csv,noheader,nounits"],
+            stderr=subprocess.DEVNULL, timeout=1.5
+        ).decode().strip().splitlines()[0]
+        g, vu, vt, gt = [x.strip() for x in out.split(",")]
+        gpu_pct = float(g)
+        vram_used = int(float(vu))
+        vram_total = int(float(vt))
+        gpu_temp = int(float(gt))
+    except Exception:
+        pass
+
+    return {
+        "cpu_pct": cpu_pct,
+        "gpu_pct": gpu_pct,
+        "peak_pct": round(max(cpu_pct, gpu_pct), 1),
+        "vram_used_mb": vram_used,
+        "vram_total_mb": vram_total,
+        "gpu_temp_c": gpu_temp,
+    }
+
 @app.route("/api/status", methods=["GET"])
 def api_status():
     global CURRENT_ENGINE_PORT
@@ -50,6 +93,7 @@ def api_status():
         CURRENT_ENGINE_PORT = req_port
     status = get_system_status(CURRENT_ENGINE_PORT)
     status["controller_port"] = CONTROLLER_PORT
+    status["live_load"] = _get_live_silicon_load()
     return jsonify(status)
 
 
