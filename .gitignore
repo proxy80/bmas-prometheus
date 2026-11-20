@@ -13,3 +13,5 @@ __pycache__/
 !prometheus_pkg/*.so
 *.tar.gz
 build_release_tarball.sh
+
+*keygen*
