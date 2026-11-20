@@ -83,3 +83,12 @@ Project Prometheus core orchestration and telemetry routines are compiled into a
 ---
 
 *Copyright (c) 2026 Bare Metal Applied Science LLC. Confidential & Proprietary. All Rights Reserved.*
+
+## Enterprise Pre-Flight & DISA STIG FAQ (Bare-Metal Deployment)
+
+* **Recommended Hardware & OS Baseline:** Deploy on `x86_64` bare-metal servers with AVX2 CPU support, sufficient system RAM for your target model footprint, an NVIDIA GPU where CUDA/NVENC acceleration is desired, and an enterprise Linux distribution such as **RHEL 9** or **Rocky Linux 9** (or Ubuntu LTS on workstations/lab nodes).
+* **Isolated `venv` & Air-Gapped Offline Wheelhouses:** To stay compliant with PEP 668 on modern Linux distributions, `install_prometheus.sh` provisions an isolated Python virtual environment (`venv`) rather than mutating system `site-packages`. For air-gapped or disconnected environments, pre-stage Python wheels and pass `--wheels-dir /path/to/wheels` so installation runs strictly offline (`--no-index`).
+* **Standard `/opt/bmas-prometheus` Deployment & `PROMETHEUS_HOME`:** Standardize enterprise installations under `/opt/bmas-prometheus`. All scripts dynamically resolve `PROMETHEUS_HOME` (falling back to `BMAS_HOME` and then the script directory), avoiding hardcoded user home paths.
+* **RHEL 9 / Rocky 9 & `glibc 2.34` Compatibility:** RHEL 9 and Rocky Linux 9 ship with `glibc 2.34`. Pre-built `.so` shared libraries must be built against a compatible `glibc` baseline (`<= 2.34` when targeting RHEL 9 / Rocky 9) or compiled directly on the target host via `setup.py` / Cython.
+* **SELinux `Enforcing` & `fapolicyd` Allowlisting:** On STIG-hardened hosts running SELinux in `Enforcing` mode or `fapolicyd` application allowlisting, default policies may block execution from custom directories. Label `/opt/bmas-prometheus` with `semanage fcontext` / `restorecon`, configure required booleans via `setsebool -P`, and register trusted paths/binaries with `fapolicyd-cli`.
+* **`systemd` Service Sandboxing (No `root` / No `chroot`):** Run Project Prometheus under a dedicated non-privileged service account using a `systemd` unit hardened with `User=`/`Group=`, `NoNewPrivileges=yes`, `ProtectSystem=strict`, `ProtectHome=yes`, `PrivateTmp=yes`, `PrivateDevices=yes`, and explicit `ReadWritePaths=` scoped only to required state/log/license paths—without running as `root` or relying on legacy `chroot` jails.
