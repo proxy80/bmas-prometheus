@@ -81,7 +81,11 @@ fi
 
 echo "--- Mount & noexec Audit ---"
 for check_path in /home "$TARGET_DIR"; do
-    mount_line="$(df -P "$check_path" 2>/dev/null | tail -n1 | awk '{print $6}')"
+    probe_path="$check_path"
+    while [ ! -e "$probe_path" ] && [ "$probe_path" != "/" ]; do
+        probe_path="$(dirname -- "$probe_path")"
+    done
+    mount_line="$(df -P "$probe_path" 2>/dev/null | tail -n1 | awk '{print $6}')"
     mount_opts="$(awk -v mp="$mount_line" '$2 == mp {print $4; exit}' /proc/mounts 2>/dev/null || true)"
     if echo ",${mount_opts}," | grep -q ",noexec,"; then
         echo "[WARN] Mount for ${check_path} (${mount_line:-/}) has 'noexec' set (${mount_opts}). Do not run binaries/venvs from noexec mounts (such as /home)."
