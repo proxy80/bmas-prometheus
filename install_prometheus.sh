@@ -37,7 +37,6 @@ echo "=== Project Prometheus v1.2.0 Pre-Flight Check ==="
 echo "Source Dir : $SCRIPT_DIR"
 echo "Target Dir : $TARGET_DIR"
 
-# 1. OS, Architecture, AVX2, RAM, GPU, and glibc ABI
 ARCH="$(uname -m)"
 OS_PRETTY="$(grep -E '^PRETTY_NAME=' /etc/os-release 2>/dev/null | cut -d= -f2- | tr -d '"' || uname -s)"
 MEM_GB="$(awk '/MemTotal:/ {printf "%.1f", $2/1024/1024}' /proc/meminfo 2>/dev/null || echo "0.0")"
@@ -71,7 +70,6 @@ if [ "$AVX2_OK" != "YES" ]; then
     echo "[WARN] CPU AVX2 flag not detected; MoE/inference kernels may run degraded."
 fi
 
-# Flag RHEL 9 / Rocky 9 glibc 2.34 ABI baseline for prebuilt .so extensions
 if echo "${OS_PRETTY}" | grep -qiE "Red Hat Enterprise Linux 9|Rocky Linux 9"; then
     echo "[INFO] RHEL 9 / Rocky 9 target detected (baseline glibc 2.34). Ensure compiled .so extensions target glibc <= 2.34."
 elif [ -n "$GLIBC_VER" ]; then
@@ -81,7 +79,6 @@ elif [ -n "$GLIBC_VER" ]; then
     fi
 fi
 
-# 2. Mount & noexec Audit (especially /home and target directory)
 echo "--- Mount & noexec Audit ---"
 for check_path in /home "$TARGET_DIR"; do
     mount_line="$(df -P "$check_path" 2>/dev/null | tail -n1 | awk '{print $6}')"
@@ -93,7 +90,6 @@ for check_path in /home "$TARGET_DIR"; do
     fi
 done
 
-# 3. SELinux & fapolicyd STIG Checks
 echo "--- SELinux & fapolicyd Audit ---"
 if command -v getenforce >/dev/null 2>&1; then
     SE_MODE="$(getenforce 2>/dev/null || true)"
@@ -117,7 +113,6 @@ else
     echo "fapolicyd   : inactive / not present"
 fi
 
-# 4. Python & PEP 668 Isolated venv Check
 if ! command -v python3 >/dev/null 2>&1; then
     echo "[ERROR] python3 is required." >&2
     exit 1
@@ -143,14 +138,14 @@ if [ ! -d "$VENV_DIR" ]; then
     fi
 fi
 
-# PEP 668 safe: always install inside the dedicated virtual environment, never --break-system-packages into system site-packages
-"$VENV_DIR/bin/python" -m pip install --upgrade pip --no-input $( [ -n "$WHEELS_DIR" ] && printf '%s' "--no-index --find-links=$WHEELS_DIR" )
+PIP_OFFLINE_ARGS=()
+if [ -n "$WHEELS_DIR" ]; then
+    PIP_OFFLINE_ARGS=(--no-index --find-links="$WHEELS_DIR")
+fi
+
+"$VENV_DIR/bin/python" -m pip install --upgrade pip --no-input "${PIP_OFFLINE_ARGS[@]}"
 if [ -f "$TARGET_DIR/requirements.txt" ]; then
-    if [ -n "$WHEELS_DIR" ]; then
-        "$VENV_DIR/bin/pip" install --no-index --find-links="$WHEELS_DIR" -r "$TARGET_DIR/requirements.txt"
-    else
-        "$VENV_DIR/bin/pip" install -r "$TARGET_DIR/requirements.txt"
-    fi
+    "$VENV_DIR/bin/pip" install "${PIP_OFFLINE_ARGS[@]}" -r "$TARGET_DIR/requirements.txt"
 fi
 
 echo "=== Project Prometheus v1.2.0 installed at $TARGET_DIR ==="

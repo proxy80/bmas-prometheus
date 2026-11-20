@@ -135,7 +135,8 @@ def activate_license():
     if not key.startswith("PROM-"):
         return jsonify({"error": "Invalid key format. Must begin with PROM-"}), 400
 
-    lic_path = os.path.expanduser("~/bmas_ai/prometheus/prometheus.lic")
+    bmas_home = os.environ.get("PROMETHEUS_HOME") or os.environ.get("BMAS_HOME") or os.path.dirname(os.path.abspath(__file__))
+    lic_path = os.path.join(bmas_home, "prometheus.lic")
     with open(lic_path, "w") as f:
         f.write(key + "\n")
 
