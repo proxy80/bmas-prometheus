@@ -1,17 +1,19 @@
-src_cython/
-*.pyx
-*.pxd
-*.c
-*.h
-build/
-bmas_keygen.py
-setup.py
+# Secrets, Keys, and Licenses
+*keygen*
+*.key
+*.pem
 *.lic
-*.lic.bak
+*.bak*
+
+# Python / Build / Release Artifacts
+venv/
+.venv/
 __pycache__/
 *.pyc
-!prometheus_pkg/*.so
+build/
+dist/
 *.tar.gz
-build_release_tarball.sh
 
-*keygen*
+# Protect Raw Cython Source from Public Repo
+src_cython/
+setup.py
